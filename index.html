@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<link rel="preload" href="assets/fonts/nunito-variable.ttf" as="font" type="font/ttf" crossorigin>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome — Mars Lin</title>
+  <meta name="description"
+    content="Welcome to Mars Lin’s personal website. Explore his background, portfolio, workspace, and ways to connect.">
+  <meta name="theme-color" content="#d6d9d9">
+  <link rel="icon" href="assets/mars-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="welcome.css?v=14">
+  <script src="script.js?v=14" defer></script>
+  <script src="welcome.js?v=14" defer></script>
+</head>
+
+<body class="welcome-page">
+  <a class="welcome-skip" href="#destinations">Skip introduction</a>
+  <main class="welcome" aria-label="Welcome to Mars Lin’s website">
+    <div class="welcome-emblem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="24 20 66 60" fill="none" role="img"
+        aria-labelledby="welcome-mark-title">
+        <title id="welcome-mark-title">Mars Lin — handwritten M</title>
+        <defs>
+          <linearGradient id="welcome-metal" x1="32" y1="28" x2="76" y2="70" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#64737d" />
+            <stop offset=".28" stop-color="#e0e5e8" />
+            <stop offset=".54" stop-color="#677984" />
+            <stop offset=".78" stop-color="#b2bec7" />
+            <stop offset="1" stop-color="#485e6c" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M32 68L43 35C46 27 51 28 49 37L44 60C43 65 45 66 48 60L64 36C69 28 75 29 72 39L65 60C63 67 67 70 73 65L81 58"
+          stroke="url(#welcome-metal)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <section class="welcome-content" aria-labelledby="welcome-title">
+      <div class="welcome-logo-slot" aria-hidden="true"></div>
+      <p class="welcome-kicker">HI</p>
+      <h1 id="welcome-title">I am Mars</h1>
+      <p class="welcome-intro">Welcome to my world. Make yourself at home.</p>
+      <nav class="welcome-navigation" id="destinations" aria-label="Choose where to explore" tabindex="-1">
+        <a href="home.html"><span class="destination-label"><span class="destination-word">Home</span></span></a>
+        <a href="portfolio.html"><span class="destination-label"><span
+              class="destination-word">Portfolio</span></span></a>
+        <a href="workspace.html"><span class="destination-label"><span
+              class="destination-word">Workspace</span></span><span class="destination-detail">My
+            works&amp;Notes</span></a>
+        <a href="about.html#links"><span class="destination-label contact-label"><span class="destination-word">Contact
+              Me</span></span></a>
+      </nav>
+    </section>
+    <div class="welcome-footer"><span>© 2026 MARS LIN</span></div>
+  </main>
+</body>
+
+</html>
