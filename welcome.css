@@ -20,7 +20,7 @@
   height: 22.75px;
   transform: translateX(-50%) scale(.72);
   transform-origin: center;
-  animation: welcome-mark 4.4s cubic-bezier(.4, 0, .2, 1) both;
+  animation: welcome-mark 2s cubic-bezier(.4, 0, .2, 1) both;
   pointer-events: none;
 }
 .welcome-emblem svg {
@@ -38,21 +38,21 @@
   letter-spacing: 0;
   color: var(--muted);
   margin: 0 0 15px;
-  animation: welcome-rise .8s 4.4s both;
+  animation: welcome-rise .8s 2s both;
 }
 .welcome h1 {
   font-size: clamp(36px, 4vw, 50px);
   letter-spacing: -2px;
   line-height: 1.1;
   margin: 0 0 16px;
-  animation: welcome-rise .8s 5.4s both;
+  animation: welcome-rise .8s 3s both;
 }
 .welcome-intro {
   font-size: 12px;
   line-height: 1.8;
   color: var(--muted);
   margin: 0;
-  animation: welcome-rise 1s 6.4s both;
+  animation: welcome-rise 1s 4s both;
 }
 .welcome-navigation {
   display: grid;
@@ -64,7 +64,7 @@
   margin: 34px auto 0;
   text-align: center;
   scroll-margin-top: 30px;
-  animation: welcome-rise 1s 6.4s both;
+  animation: welcome-rise 1s 4s both;
 }
 .welcome-navigation a {
   min-height: 70px;
@@ -114,7 +114,7 @@
   color: #56636c;
   font-size: 8px;
   letter-spacing: 1.4px;
-  animation: welcome-rise 1s 6.4s both;
+  animation: welcome-rise 1s 4s both;
 }
 .welcome-skip {
   position: absolute;
@@ -186,3 +186,7 @@
   .welcome-navigation a,
   .welcome-footer { animation: none; }
 }
+
+.welcome-restored .welcome-emblem,
+.welcome-restored .welcome-content > *,
+.welcome-restored .welcome-footer { animation: none; }

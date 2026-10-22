@@ -1,9 +1,14 @@
 // Progressive enhancement: every destination remains a normal static HTML link.
-(() => {
+let welcomeCleanup;
+function initializeWelcome() {
+  welcomeCleanup?.();
   const navigation = document.querySelector('.welcome-navigation');
   if (!navigation) return;
   let transitioning = false;
-  let adoptedPage = false;
+  const lifetime = new AbortController();
+  let activeStage;
+  let activeFlight;
+  const activeAnimations = [];
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const welcome = document.querySelector('.welcome');
   const content = document.querySelector('.welcome-content');
@@ -32,7 +37,16 @@
   layoutObserver.observe(content);
   window.addEventListener('resize', scheduleLayout);
   fitWelcome();
-  document.fonts.ready.then(scheduleLayout);
+  document.fonts.ready.then(() => { if (!lifetime.signal.aborted) scheduleLayout(); });
+  welcomeCleanup = () => {
+    lifetime.abort();
+    activeAnimations.forEach(animation => animation.cancel());
+    activeStage?.remove();
+    activeFlight?.remove();
+    layoutObserver.disconnect();
+    window.removeEventListener('resize', scheduleLayout);
+    cancelAnimationFrame(layoutFrame);
+  };
 
   navigation.addEventListener('click', async (event) => {
     const link = event.target.closest('a');
@@ -42,24 +56,19 @@
     if (transitioning) return;
     transitioning = true;
     const destination = new URL(link.href);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
     let stage;
     let flight;
     try {
       link.setAttribute('aria-busy', 'true');
-      const response = await fetch(destination.pathname + destination.search, {
-        signal: controller.signal, cache: 'no-cache',
-      });
-      if (!response.ok) throw new Error('Destination unavailable');
-      const incoming = new DOMParser().parseFromString(await response.text(), 'text/html');
-      clearTimeout(timeout);
+      const incoming = await SiteNavigation.loadPage(destination);
+      if (lifetime.signal.aborted) return;
       if (!incoming.querySelector('.site-header') || !incoming.querySelector('main')) throw new Error('Missing page structure');
 
       const word = link.querySelector('.destination-word');
       const start = word.getBoundingClientRect();
       const wordStyle = getComputedStyle(word);
       flight = document.createElement('span');
+      activeFlight = flight;
       flight.className = 'destination-flight';
       flight.textContent = word.textContent;
       flight.setAttribute('aria-hidden', 'true');
@@ -71,6 +80,7 @@
       });
 
       stage = document.createElement('div');
+      activeStage = stage;
       stage.className = 'site-arrival';
       stage.inert = true;
       stage.setAttribute('aria-hidden', 'true');
@@ -104,6 +114,8 @@
         { duration: 1000, delay: 1000, easing: 'cubic-bezier(.2, .6, .2, 1)', fill: 'forwards' });
       const footer = stage.querySelector('footer')?.animate(
         [{ opacity: 0 }, { opacity: 1 }], { duration: 800, delay: 1200, fill: 'forwards' });
+      activeAnimations.push(...[fadeOut, skipFade, move, header, reveal, footer].filter(Boolean));
+      activeAnimations.forEach(animation => animation.finished.catch(() => {}));
       await move.finished;
       target.style.opacity = '';
       flight.remove();
@@ -121,9 +133,8 @@
       document.title = incoming.title;
       const description = incoming.querySelector('meta[name="description"]');
       if (description) document.querySelector('meta[name="description"]').content = description.content;
-      history.pushState({ fromWelcome: true }, '', destination.href);
-      adoptedPage = true;
-      initializeSiteNavigation();
+      welcomeCleanup();
+      SiteNavigation.adoptWelcomePage(destination);
       // Contact moves to the real anchor after the header has formed.
       const anchor = destination.hash && document.getElementById(destination.hash.slice(1));
       const focusTarget = anchor || document.querySelector('main');
@@ -132,17 +143,12 @@
       if (anchor) anchor.scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
       else window.scrollTo(0, 0);
     } catch {
+      if (lifetime.signal.aborted) return;
       // Keep destinations usable on slow networks, blocked fetch, or unsupported transitions.
       stage?.remove();
       flight?.remove();
       location.assign(destination.href);
-    } finally {
-      clearTimeout(timeout);
     }
-  });
-
-  // Returning through browser history restores the proper standalone document.
-  window.addEventListener('popstate', () => {
-    if (adoptedPage) location.reload();
-  });
-})();
+  }, { signal: lifetime.signal });
+}
+initializeWelcome();

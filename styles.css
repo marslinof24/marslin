@@ -32,15 +32,16 @@ main{max-width:1192px;margin:auto;padding:0 32px}.hero{min-height:650px;display:
 }
 .indicator-ready .nav-indicator{transition:transform .42s cubic-bezier(.22,.75,.22,1),width .42s cubic-bezier(.22,.75,.22,1),height .42s cubic-bezier(.22,.75,.22,1)}
 .nav a:focus-visible{outline:2px solid #304e66;outline-offset:2px}
-.page-is-leaving{pointer-events:none}
-body.site-page:not(.arrival-complete){animation:page-arrive .65s cubic-bezier(.2,.65,.25,1) both}
-@keyframes page-arrive{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.page-stack{position:relative;display:flow-root}
+.page-layer{display:flow-root;min-width:0}
+.page-layer-outgoing{position:absolute;top:0;left:0;width:100%;pointer-events:none}
+html{scrollbar-gutter:stable}
 @media(max-width:600px){
   .nav{position:absolute;left:-1px;right:-1px;top:74px;padding:10px 14px;gap:4px;overflow:hidden}
   .nav a{padding:12px 16px;border-radius:12px}
   .nav-indicator{border-radius:12px}
 }
-@media(prefers-reduced-motion:reduce){body.site-page:not(.arrival-complete){animation:none}}
+
 
 /* A single rounded family and fewer visual voices throughout the site. */
 body,button,input,select,textarea,h1,h2,h3,em,strong{font-family:var(--font-text)}
@@ -77,8 +78,8 @@ footer{font-size:12px;align-items:center}
 }
 /* Native SVG cursor: no tracking overlay, no JavaScript or touch interference. */
 @media(hover:hover) and (pointer:fine){
-  html,body,body *{cursor:url("assets/glass-cursor.svg") 18 4,auto}
-  a,button{cursor:url("assets/glass-cursor.svg") 18 4,pointer}
+  html,body,body *{cursor:url("assets/black-cursor.svg?v=15") 10 3,auto}
+  a,button{cursor:url("assets/black-cursor.svg?v=15") 10 3,pointer}
 }
 @media(forced-colors:active){
   html,body,body *{cursor:auto}
