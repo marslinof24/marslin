@@ -195,6 +195,22 @@ const SiteNavigation = (() => {
     else window.scrollTo(0, 0);
     if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
   }
+  function retireIdentifiers(layer,ticket) {
+    // #main carries the page width/padding. Preserve it before renaming IDs.
+    const main=layer.querySelector('main'),style=getComputedStyle(main);
+    for(const property of ['width','max-width','margin-left','margin-right','padding-left','padding-right','min-height','box-sizing'])main.style.setProperty(property,style.getPropertyValue(property));
+    const identifiers=new Map();
+    layer.querySelectorAll('[id]').forEach(node=>{const old=node.id,next=`retired-${ticket}-${old}`;identifiers.set(old,next);node.id=next;});
+    layer.querySelectorAll('*').forEach(node=>{
+      for(const attribute of [...node.attributes]) {
+        let value=attribute.value;
+        value=value.replace(/url\((['"]?)#([^)'"\s]+)\1\)/g,(all,quote,id)=>identifiers.has(id)?`url(#${identifiers.get(id)})`:all);
+        if(['aria-labelledby','aria-describedby'].includes(attribute.name))value=value.split(/\s+/).map(id=>identifiers.get(id)||id).join(' ');
+        if(['href','xlink:href'].includes(attribute.name)&&value.startsWith('#')&&identifiers.has(value.slice(1)))value='#'+identifiers.get(value.slice(1));
+        if(value!==attribute.value)node.setAttribute(attribute.name,value);
+      }
+    });
+  }
   async function navigate(url, { restore = false, key } = {}) {
     const ticket=++sequence;
     saveScroll();finishTransition?.();
@@ -214,7 +230,7 @@ const SiteNavigation = (() => {
       outgoing.classList.add('page-layer-outgoing');
       Object.assign(outgoing.style,{top:oldRect.top+'px',left:oldRect.left+'px',width:oldRect.width+'px',height:oldRect.height+'px'});
       outgoing.inert=true;outgoing.setAttribute('aria-hidden','true');
-      outgoing.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
+      retireIdentifiers(outgoing,ticket);
       stack.append(incoming);
       stack.style.minHeight=Math.max(oldRect.height,incoming.getBoundingClientRect().height)+'px';
       metadata(doc);
