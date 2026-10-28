@@ -171,12 +171,14 @@
   position: fixed;
   inset: 0;
   z-index: 20;
-  overflow: auto;
-  scrollbar-gutter: stable;
+  /* Root already reserves scrollbar space. Keep this temporary viewport the
+     same width, with programmatic scrolling for Contact and short windows. */
+  overflow: hidden;
+  scrollbar-gutter: auto;
 }
 .site-arrival > .site-header,
-.site-arrival > main,
-.site-arrival > footer { opacity: 0; }
+.site-arrival main,
+.site-arrival footer { opacity: 0; }
 .is-transitioning { overflow: hidden; }
 .is-transitioning .welcome-navigation { pointer-events: none; }
 .destination-label .destination-word { color: inherit; font-size: inherit; }
