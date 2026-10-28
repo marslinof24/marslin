@@ -6,7 +6,7 @@
     {label:'Metal exploration',title:'Finding the material',image:'assets/prototype/website-metal.png',description:'A darker metal palette and a more compact mark, while retaining the original page structure.'},
     {label:'Selected layout',title:'A clearer direction',image:'assets/prototype/website-preview.png',description:'Project collaboration moves to the foreground, with a more direct route to projects and technical practice.'}
   ];
-  let current = 0, work = 'website', animation, dialog, opener, request = 0;
+  let current = 0, work = 'website', animation, dialog, opener, request = 0, activeMain;
   const escape = value => value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function controls() {
     return `<div class="version-segments" role="group" aria-label="Enlarged image version"><span class="segment-selection" aria-hidden="true"></span>${stages.map((s,i)=>`<button type="button" data-version="${i}" aria-pressed="${i===current}">${s.label}</button>`).join('')}</div>`;
@@ -53,6 +53,9 @@
     document.body.append(dialog);
   }
   function enhance() {
+    const main=document.querySelector('.page-layer:not(.page-layer-outgoing) main,body>main');
+    if(main===activeMain){position();return;}
+    activeMain=main;
     ++request;animation?.cancel();dialog?.remove();dialog=undefined;
     if(!document.querySelector('#stage-display'))return;
     current=0;chooseWork(location.hash.slice(1));ensureDialog();position();
@@ -68,6 +71,7 @@
     if(event.target.closest('[data-close-gallery]'))dialog?.close();
   });
   document.addEventListener('mars:page',enhance);
+  document.addEventListener('mars:prepare',enhance);
   document.addEventListener('mars:anchor',()=>{if(document.querySelector('#stage-display'))chooseWork(location.hash.slice(1));});
   addEventListener('resize',()=>position());
   addEventListener('hashchange',()=>{if(document.querySelector('#stage-display'))chooseWork(location.hash.slice(1));});

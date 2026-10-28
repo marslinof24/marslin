@@ -221,6 +221,7 @@ const SiteNavigation = (() => {
       if(restore){currentKey=key;currentURL=new URL(url.href);}else entry(url);
       siteNavigationSelect?.(url,!restore&&moving);
       place(url,currentKey,restore);
+      document.dispatchEvent(new CustomEvent('mars:prepare'));
       let animations=[],done=false;
       const finish=()=>{
         if(done)return;done=true;
