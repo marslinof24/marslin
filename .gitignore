@@ -1,0 +1,20 @@
+# Local services, publishing checkout, temporary previews and tool skills
+/.cache/
+/.agents/
+/skills-lock.json
+**/__pycache__/
+*.pyc
+
+# Private content and local editor state (never publish these)
+/_local/drafts/
+/_local/media/
+/_local/applied-preview/
+/Mars_Lin_Resume_Business_pweb.pdf
+/.env
+/.env.*
+*.pem
+*.key
+
+# Historical screenshot sources; approved public screenshots live in assets/
+/preview-*.png
+*.log

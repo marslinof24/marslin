@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="A local design prototype for Mars Lin's personal website.">
+  <meta name="theme-color" content="#d6d9d9">
+  <title>Mars Lin — Design prototype</title>
+  <link rel="icon" href="assets/mars-mark.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/nunito-variable.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/black-cursor.svg?v=15" as="image" type="image/svg+xml">
+  <link rel="stylesheet" href="prototype.css">
+  <script src="prototype.js" defer></script>
+</head>
+<body class="prototype-demo">
+  <!-- THROWAWAY UI PROTOTYPE: page-specific A/B/C comparisons with real content.
+       Home A, Portfolio C, Workspace B, and About A are approved. Local only. -->
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="prototype.html?view=home&variant=A" data-view="home" aria-label="Mars Lin home">
+        <img src="assets/mars-mark.svg" alt="" width="38" height="35">
+        <span>ThisisMarsLin</span>
+      </a>
+      <span class="mobile-page-label" aria-hidden="true">Home</span>
+      <button class="menu-toggle" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">Menu <span aria-hidden="true">＋</span></button>
+      <nav id="site-nav" aria-label="Main navigation">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <a href="prototype.html?view=home&variant=A" data-view="home" aria-current="page">Home</a>
+        <a href="prototype.html?view=workspace&variant=B" data-view="workspace">Workspace</a>
+        <a href="prototype.html?view=portfolio&variant=C" data-view="portfolio">Portfolio</a>
+        <a href="prototype.html?view=about&variant=A" data-view="about">About</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer class="site-footer">
+    <span>© 2026 Mars Lin</span>
+    <div><a href="https://github.com/marslinof24">GitHub</a><a href="https://www.linkedin.com/in/mars-lin-han">LinkedIn</a><a href="prototype.html?view=about&variant=A#links" data-view="about">Let's connect</a></div>
+  </footer>
+  <aside class="prototype-switcher" aria-label="Prototype comparison">
+    <button type="button" data-cycle="-1" aria-label="Previous layout variant">←</button>
+    <div class="prototype-state" role="status" aria-live="polite"><span id="prototype-context">Prototype · Home</span><strong id="prototype-variant">A — Position first</strong></div>
+    <button type="button" data-cycle="1" aria-label="Next layout variant">→</button>
+  </aside>
+  <noscript><p class="no-script">This local comparison needs JavaScript. <a href="home.html">Visit the existing website</a>.</p></noscript>
+</body>
+</html>

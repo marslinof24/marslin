@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mars · 網站內容工作室</title><link rel="stylesheet" href="/_editor/editor.css"><script src="/_editor/editor.js" defer></script></head>
+<body>
+<header class="toolbar"><div class="identity"><strong>Mars<span>內容工作室</span></strong><small>本機草稿 · 儲存不會上線</small></div><div class="toolbar-actions"><span id="status" role="status">正在讀取草稿…</span><button id="undo" disabled>復原</button><button id="mode" aria-pressed="true">切換預覽</button><button id="save" class="primary">儲存草稿</button></div></header>
+<div class="studio"><aside class="inspector"><section class="page-tools"><label for="page">編輯頁面</label><select id="page"><option value="home.html">Home</option><option value="portfolio.html">Portfolio</option><option value="workspace.html">Workspace</option><option value="about.html">About</option><option value="index.html">Welcome</option></select><div class="device"><button data-width="desktop" aria-pressed="true">桌面</button><button data-width="390" aria-pressed="false">手機</button></div></section>
+<section id="selection"><div class="empty"><span class="point">↖</span><h1>點選畫面，開始編輯。</h1><p>點文字改內容，點連結改網址；圖片區可以直接換圖。完成後按「儲存草稿」。</p></div></section>
+<section id="collections"><div class="section-heading"><h2 id="collection-heading">項目</h2><button id="add">＋ 新增</button></div><div id="items"></div></section>
+<details class="field-browser"><summary>找不到欄位？從清單選擇</summary><input id="search" type="search" placeholder="搜尋文字、連結或欄位" aria-label="搜尋欄位"><div id="field-list"></div></details>
+<p class="handoff">儲存後，在對話中告訴我「套用草稿」。我會讀取這份修改，先讓你本機驗收；push 仍由你下令。</p></aside>
+<main class="canvas"><div class="canvas-label"><span id="page-title">Home</span><span id="hint">編輯模式：點選內容不會跳轉</span></div><div class="frame-wrap"><iframe id="preview" title="網站即時預覽" src="about:blank"></iframe></div></main></div>
+<dialog id="remove-dialog"><h2>從草稿刪除此項目？</h2><p>此操作會儲存到本機草稿，正式網站不會立即改動。文字與圖片修改可用「復原」；新增或刪除項目會開始新的編輯紀錄。</p><div><button id="cancel-remove">保留</button><button id="confirm-remove" class="danger">刪除項目</button></div></dialog>
+<input id="image-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+</body></html>
