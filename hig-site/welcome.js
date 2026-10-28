@@ -17,10 +17,11 @@ function initializeWelcome() {
   // Fit the navigation to the real viewport while preserving its golden rectangle.
   // Keep a readable minimum; unusually short viewports can scroll naturally.
   function fitWelcome() {
+    document.documentElement.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>24);
     const style = getComputedStyle(welcome);
     const safeSpace = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     const fixedHeight = content.offsetHeight - navigation.offsetHeight;
-    const availableHeight = document.documentElement.clientHeight - safeSpace - fixedHeight;
+    const availableHeight = document.documentElement.clientHeight - safeSpace - fixedHeight - 4;
     const width = Math.min(content.clientWidth, Math.max(220, Math.min(320, availableHeight / 1.618)));
     welcome.style.setProperty('--nav-width', `${width}px`);
     // The placeholder reserves the logo's final visible box inside the centered stack.
