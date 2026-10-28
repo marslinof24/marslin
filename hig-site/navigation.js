@@ -262,7 +262,7 @@ const SiteNavigation = (() => {
     event.preventDefault();
     if (keyFor(url) === keyFor(currentURL)) {
       ++sequence; finishTransition?.();
-      if (url.hash !== currentURL.hash) { saveScroll(); entry(url); }
+      if (url.hash !== new URL(location.href).hash) { saveScroll(); entry(url); }
       siteNavigationSelect?.(url, false); place(url, currentKey); document.dispatchEvent(new CustomEvent('mars:anchor'));
       return;
     }
