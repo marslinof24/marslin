@@ -17,10 +17,11 @@ function initializeWelcome() {
   // Fit the navigation to the real viewport while preserving its golden rectangle.
   // Keep a readable minimum; unusually short viewports can scroll naturally.
   function fitWelcome() {
+    document.documentElement.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>24);
     const style = getComputedStyle(welcome);
     const safeSpace = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     const fixedHeight = content.offsetHeight - navigation.offsetHeight;
-    const availableHeight = document.documentElement.clientHeight - safeSpace - fixedHeight;
+    const availableHeight = document.documentElement.clientHeight - safeSpace - fixedHeight - 4;
     const width = Math.min(content.clientWidth, Math.max(220, Math.min(320, availableHeight / 1.618)));
     welcome.style.setProperty('--nav-width', `${width}px`);
     // The placeholder reserves the logo's final visible box inside the centered stack.
@@ -81,21 +82,35 @@ function initializeWelcome() {
 
       stage = document.createElement('div');
       activeStage = stage;
-      stage.className = 'site-arrival';
+      stage.className = `site-arrival ${incoming.body.className}`;
       stage.inert = true;
       stage.setAttribute('aria-hidden', 'true');
       stage.append(...incoming.body.childNodes);
       document.body.append(stage, flight);
       document.body.classList.add('is-transitioning');
+      // Prepare the final wrappers, styles and selected controls before reveal.
+      // Adoption later moves these same nodes without changing their layout.
+      SiteNavigation.prepareWelcomePage(stage);
+      const anchor = destination.hash && stage.querySelector(`#${CSS.escape(destination.hash.slice(1))}`);
+      let contactScroll = 0;
+      if (anchor) {
+        stage.scrollTop = anchor.getBoundingClientRect().top
+          - parseFloat(getComputedStyle(anchor).scrollMarginTop || 0);
+        contactScroll = stage.scrollTop;
+        stage.scrollTop = 0;
+      }
 
-      const target = matchMedia('(max-width: 600px)').matches
-        ? stage.querySelector('.mobile-page-label')
-        : stage.querySelector('.nav a[aria-current="page"]');
-      const end = target.getBoundingClientRect();
-      const targetStyle = getComputedStyle(target);
-      const scale = parseFloat(targetStyle.fontSize) / parseFloat(wordStyle.fontSize);
-      // Desktop links include vertical padding; align the moving word to their text.
-      const targetTop = end.top + parseFloat(targetStyle.paddingTop);
+      const target = stage.querySelector('.nav a[aria-current="page"]');
+      const textRange = document.createRange();
+      textRange.selectNodeContents(target);
+      const end = textRange.getBoundingClientRect();
+      const flightRange = document.createRange();
+      flightRange.selectNodeContents(flight);
+      const flightText = flightRange.getBoundingClientRect();
+      const scaleX = end.width / flightText.width;
+      const scaleY = end.height / flightText.height;
+      const finalX = end.left - start.left - (flightText.left - start.left) * scaleX;
+      const finalY = end.top - start.top - (flightText.top - start.top) * scaleY;
       target.style.opacity = '0';
       word.style.opacity = '0';
 
@@ -105,8 +120,13 @@ function initializeWelcome() {
         [{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' });
       const move = flight.animate([
         { transform: 'translate(0, 0) scale(1)' },
-        { transform: `translate(${end.left - start.left}px, ${targetTop - start.top}px) scale(${scale})` },
+        { transform: `translate(${finalX}px, ${finalY}px) scale(${scaleX}, ${scaleY})` },
       ], { duration: 1250, easing: 'cubic-bezier(.65, 0, .2, 1)', fill: 'forwards' });
+      // Blend the moving label into the real type, including Contact Me → About.
+      const wordFade = flight.animate([{opacity:1},{opacity:0}],
+        {duration:160,delay:1090,fill:'forwards'});
+      const targetFade = target.animate([{opacity:0},{opacity:1}],
+        {duration:160,delay:1090,fill:'forwards'});
       const header = stage.querySelector('.site-header').animate(
         [{ opacity: 0 }, { opacity: 1 }], { duration: 850, delay: 400, fill: 'forwards' });
       const reveal = stage.querySelector('main').animate(
@@ -114,19 +134,36 @@ function initializeWelcome() {
         { duration: 1000, delay: 1000, easing: 'cubic-bezier(.2, .6, .2, 1)', fill: 'forwards' });
       const footer = stage.querySelector('footer')?.animate(
         [{ opacity: 0 }, { opacity: 1 }], { duration: 800, delay: 1200, fill: 'forwards' });
-      activeAnimations.push(...[fadeOut, skipFade, move, header, reveal, footer].filter(Boolean));
+      activeAnimations.push(...[fadeOut, skipFade, move, wordFade, targetFade, header, reveal, footer].filter(Boolean));
       activeAnimations.forEach(animation => animation.finished.catch(() => {}));
       await move.finished;
       target.style.opacity = '';
+      targetFade.cancel();
       flight.remove();
-      await Promise.all([reveal.finished, header.finished, footer?.finished]);
+      // Contact first forms the header, then scrolls during the remaining reveal.
+      // Finish the scroll inside the stage so adoption cannot start a second move.
+      const contactArrival = new Promise(resolve => {
+        if (!contactScroll) return resolve();
+        const started = performance.now();
+        function scrollFrame(now) {
+          if (lifetime.signal.aborted) return resolve();
+          const progress = Math.min(1, (now - started) / 650);
+          const eased = progress * progress * (3 - 2 * progress);
+          stage.scrollTop = contactScroll * eased;
+          if (progress < 1) requestAnimationFrame(scrollFrame);
+          else resolve();
+        }
+        requestAnimationFrame(scrollFrame);
+      });
+      await Promise.all([reveal.finished, header.finished, footer?.finished, contactArrival]);
 
       // Adopt the actual destination DOM and URL, so refresh, Back, and normal links work.
       const children = [...stage.childNodes];
+      const arrivalScroll = stage.scrollTop;
       layoutObserver.disconnect();
       window.removeEventListener('resize', scheduleLayout);
       cancelAnimationFrame(layoutFrame);
-      for (const animation of [fadeOut, skipFade, move, header, reveal, footer]) animation?.cancel();
+      for (const animation of activeAnimations) animation.cancel();
       document.body.replaceChildren(...children);
       document.body.className = incoming.body.className;
       document.body.classList.add('arrival-complete');
@@ -135,13 +172,11 @@ function initializeWelcome() {
       if (description) document.querySelector('meta[name="description"]').content = description.content;
       welcomeCleanup();
       SiteNavigation.adoptWelcomePage(destination);
-      // Contact moves to the real anchor after the header has formed.
-      const anchor = destination.hash && document.getElementById(destination.hash.slice(1));
+      // Preserve the exact stage scroll offset when the same nodes join the document.
       const focusTarget = anchor || document.querySelector('main');
       focusTarget.setAttribute('tabindex', '-1');
       focusTarget.focus({ preventScroll: true });
-      if (anchor) anchor.scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
-      else window.scrollTo(0, 0);
+      window.scrollTo({top:arrivalScroll,behavior:'instant'});
     } catch {
       if (lifetime.signal.aborted) return;
       // Keep destinations usable on slow networks, blocked fetch, or unsupported transitions.
