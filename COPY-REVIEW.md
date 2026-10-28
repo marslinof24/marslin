@@ -117,4 +117,8 @@ Text, image and link updates are made on main without a new branch. Changes to t
 
 ## Local preview
 
-From the production checkout, run `python -m http.server 4180 --bind 127.0.0.1` and open http://127.0.0.1:4180/index.html?preview=copy-v1 . This revision is committed locally on main and has not been pushed or deployed.
+From the production checkout, run `python -m http.server 4180 --bind 127.0.0.1` and open http://127.0.0.1:4180/index.html?preview=copy-v1 . The copy revision was reviewed locally on main before the owner authorized publication below.
+
+## Final contact cleanup and publication
+
+The owner subsequently approved publication and requested removal of the two duplicate contact blocks beneath the Portfolio resume and project. Both blocks and the resume's now-obsolete local Contact anchor were removed. The site footer's Let's connect link and the About contact section remain. This final cleanup supersedes the contact wording changes listed above; the earlier table records the full editing history.
