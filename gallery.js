@@ -2,14 +2,14 @@
 (() => {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const stages = [
-    {label:'First layout',title:'The first version',image:'assets/prototype/website-first.png',description:'The original silver palette, circular M, and “People first.” introduction.'},
-    {label:'Metal exploration',title:'Finding the material',image:'assets/prototype/website-metal.png',description:'A darker metal palette and a more compact mark, while retaining the original page structure.'},
-    {label:'Selected layout',title:'A clearer direction',image:'assets/prototype/website-preview.png',description:'Project collaboration moves to the foreground, with a more direct route to projects and technical practice.'}
+    {label:'First layout',title:'First version',image:'assets/prototype/website-first.png',description:'The first version used a silver palette, a circular M, and the “People first.” introduction.'},
+    {label:'Metal exploration',title:'Metallic finish',image:'assets/prototype/website-metal.png',description:'This version explored darker metallic colors and a smaller logo while keeping the original page structure.'},
+    {label:'Selected layout',title:'Revised layout',image:'assets/prototype/website-preview.png',description:'This version highlights project coordination and provides direct links to projects and learning notes.'}
   ];
   let current = 0, work = 'website', animation, dialog, opener, request = 0, activeMain;
   const escape = value => value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function controls() {
-    return `<div class="version-segments" role="group" aria-label="Enlarged image version"><span class="segment-selection" aria-hidden="true"></span>${stages.map((s,i)=>`<button type="button" data-version="${i}" aria-pressed="${i===current}">${s.label}</button>`).join('')}</div>`;
+    return `<div class="version-segments" role="group" aria-label="Website version"><span class="segment-selection" aria-hidden="true"></span>${stages.map((s,i)=>`<button type="button" data-version="${i}" aria-pressed="${i===current}">${s.label}</button>`).join('')}</div>`;
   }
   function position(animate=false) {
     document.querySelectorAll('.version-segments').forEach(group=>{
@@ -27,9 +27,9 @@
     if(ticket!==request||!document.querySelector('#stage-display'))return;
     current=index;
     const display=document.querySelector('#stage-display');
-    display.innerHTML=`<figure class="workspace-figure"><button type="button" class="screenshot-open" data-enlarge aria-label="Enlarge ${item.label} screenshot"><img src="${item.image}" alt="${item.label} — actual saved website screenshot"><span>View larger ↗</span></button><figcaption><h3>${item.title}</h3><p>${escape(item.description)}</p><a class="text-link" href="https://github.com/marslinof24/marslin">View repository</a></figcaption></figure>`;
+    display.innerHTML=`<figure class="workspace-figure"><button type="button" class="screenshot-open" data-enlarge aria-label="Enlarge screenshot: ${item.label}"><img src="${item.image}" alt="${item.label} version of the personal website"><span>Enlarge image ↗</span></button><figcaption><h3>${item.title}</h3><p>${escape(item.description)}</p><a class="text-link" href="https://github.com/marslinof24/marslin">View repository</a></figcaption></figure>`;
     document.querySelectorAll('[data-version]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.version)===current)));
-    if(dialog?.open)dialog.querySelector('.gallery-image').innerHTML=`<img src="${item.image}" alt="${item.label} — actual saved website screenshot">`;
+    if(dialog?.open)dialog.querySelector('.gallery-image').innerHTML=`<img src="${item.image}" alt="${item.label} version of the personal website">`;
     position(animate);
     if(animate&&!reduced.matches){animation?.cancel();animation=display.animate([{opacity:.6},{opacity:1}],{duration:180});}
   }
@@ -39,8 +39,8 @@
     document.querySelector('#website-versions').hidden=!website;
     const empty=document.querySelector('#work-placeholder');empty.hidden=website;
     document.querySelector('#work-title').textContent=website?'Personal website':work==='linux'?'Linux environment':'Data & queries';
-    document.querySelector('#work-description').textContent=website?'The making of this site. Real screenshots from the design process.':work==='linux'?'A place for an environment screenshot, with its setup notes alongside.':'A place for database practice, query results, and the notes behind them.';
-    if(!website)empty.innerHTML='<div class="workspace-empty">Screenshot to add</div><p>Related notes to add</p>';
+    document.querySelector('#work-description').textContent=website?'Screenshots showing how this website has developed.':work==='linux'?'Linux setup screenshots and notes will be added here.':'Database queries, results, and learning notes will be added here.';
+    if(!website)empty.innerHTML='<div class="workspace-empty">Screenshots coming soon</div><p>Notes coming soon</p>';
     document.querySelectorAll('[data-work]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.work===work)));
     position();
   }
@@ -67,7 +67,7 @@
       const url=new URL(location.href);url.hash=button.dataset.work;
       history.replaceState(history.state,'',url);
     }
-    const open=event.target.closest('[data-enlarge]');if(open){ensureDialog();opener=open;dialog.querySelector('.gallery-controls').innerHTML=controls();dialog.querySelector('.gallery-image').innerHTML=`<img src="${stages[current].image}" alt="${stages[current].label} — actual saved website screenshot">`;dialog.showModal();position();dialog.querySelector('[data-close-gallery]').focus();}
+    const open=event.target.closest('[data-enlarge]');if(open){ensureDialog();opener=open;dialog.querySelector('.gallery-controls').innerHTML=controls();dialog.querySelector('.gallery-image').innerHTML=`<img src="${stages[current].image}" alt="${stages[current].label} version of the personal website">`;dialog.showModal();position();dialog.querySelector('[data-close-gallery]').focus();}
     if(event.target.closest('[data-close-gallery]'))dialog?.close();
   });
   document.addEventListener('mars:page',enhance);
