@@ -1,0 +1,13 @@
+// Passive, cache-only frame observer. No application behavior is changed.
+let run=0;
+document.addEventListener('click',event=>{
+ const link=event.target.closest('a[href]');if(!link||!document.body.classList.contains('site-page'))return;
+ const url=new URL(link.href);if(url.pathname===location.pathname||!['home.html','workspace.html','portfolio.html','about.html'].includes(url.pathname.split('/').pop()))return;
+ const token=++run,start=performance.now(),header=document.querySelector('.site-header'),samples=[];const initialMain=document.querySelector('.page-layer:not(.page-layer-outgoing) main,body>main').getBoundingClientRect();
+ function frame(t){if(token!==run)return;const outgoing=document.querySelector('.page-layer-outgoing'),incoming=document.querySelector('.page-layer-incoming');samples.push({t:Math.round(t-start),layers:document.querySelectorAll('.page-layer').length,oldTop:outgoing?outgoing.getBoundingClientRect().top:null,oldMainWidth:outgoing?.querySelector('main').getBoundingClientRect().width??null,oldMainX:outgoing?.querySelector('main').getBoundingClientRect().x??null,newOpacity:incoming?Number(getComputedStyle(incoming).opacity):null,svgReferencesValid:!outgoing||[...outgoing.querySelectorAll('[stroke]')].every(n=>{const m=n.getAttribute('stroke').match(/^url\(#([^)]+)\)$/);return !m||Boolean(document.getElementById(m[1]));}),headerSame:document.querySelector('.site-header')===header,bg:getComputedStyle(document.body).backgroundColor,cursor:getComputedStyle(document.body).cursor,scroll:scrollY});
+ if(t-start<850){requestAnimationFrame(frame);return;}
+ let output=document.querySelector('#full-probe-result');if(!output){output=document.createElement('output');output.hidden=true;output.id='full-probe-result';document.body.append(output);}
+ const active=samples.filter(s=>s.newOpacity!==null),old=samples.filter(s=>s.oldTop!==null);
+ output.textContent=JSON.stringify({frames:samples.length,outgoingLayoutJump:old.some(s=>Math.abs(s.oldMainWidth-initialMain.width)>1||Math.abs(s.oldMainX-initialMain.x)>1),initialMainWidth:initialMain.width,firstIncoming:active.slice(0,3),outgoingMovement:old.length?Math.max(...old.map(s=>s.oldTop))-Math.min(...old.map(s=>s.oldTop)):null,svgReferencesValid:samples.every(s=>s.svgReferencesValid),headerStable:samples.every(s=>s.headerSame),htmlBackground:getComputedStyle(document.documentElement).backgroundColor,backgrounds:[...new Set(samples.map(s=>s.bg))],cursorStable:new Set(samples.map(s=>s.cursor)).size===1,last:samples.at(-1),maxGap:Math.max(...samples.slice(1).map((s,i)=>s.t-samples[i].t))});
+ }requestAnimationFrame(frame);
+},true);
