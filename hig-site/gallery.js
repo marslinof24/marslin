@@ -52,8 +52,8 @@
     dialog.addEventListener('close',()=>{(document.querySelector('[data-enlarge]')||opener)?.focus({preventScroll:true});});
     document.body.append(dialog);
   }
-  function enhance() {
-    const main=document.querySelector('.page-layer:not(.page-layer-outgoing) main,body>main');
+  function enhance({detail} = {}) {
+    const main=detail?.root?.querySelector('main') || document.querySelector('.page-layer:not(.page-layer-outgoing) main,body>main');
     if(main===activeMain){position();return;}
     activeMain=main;
     ++request;animation?.cancel();dialog?.remove();dialog=undefined;

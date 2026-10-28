@@ -169,15 +169,15 @@ const SiteNavigation = (() => {
     }
     return new DOMParser().parseFromString(await pending.get(key).request, 'text/html');
   }
-  function wrapContent() {
-    let stack = document.querySelector('.page-stack');
+  function wrapContent(root = document.body) {
+    let stack = root.querySelector('.page-stack');
     if (stack) return stack;
-    const main = document.querySelector('body > main');
-    if (!document.body.classList.contains('site-page') || !main) return null;
+    const main = root.querySelector(':scope > main');
+    if (!root.classList.contains('site-page') || !main) return null;
     stack = document.createElement('div'); stack.className = 'page-stack';
     const layer = document.createElement('div'); layer.className = 'page-layer';
     main.before(stack); stack.append(layer); layer.append(main);
-    const footer = document.querySelector('body > footer');
+    const footer = root.querySelector(':scope > footer');
     if (footer) layer.append(footer);
     return stack;
   }
@@ -261,6 +261,11 @@ const SiteNavigation = (() => {
     saveScroll(); entry(url); wrapContent(); initializeSiteNavigation();
     document.dispatchEvent(new CustomEvent('mars:page'));
   }
+  function prepareWelcomePage(root) {
+    wrapContent(root);
+    initializeSiteNavigation();
+    document.dispatchEvent(new CustomEvent('mars:prepare', {detail:{root}}));
+  }
   function prefetch(event) {
     const link = event.target.closest('a[href]');
     if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
@@ -319,5 +324,5 @@ const SiteNavigation = (() => {
   });
   if (document.body.classList.contains('site-page')) remember(currentURL, document.documentElement.outerHTML);
   wrapContent(); initializeSiteNavigation();
-  return { loadPage, adoptWelcomePage };
+  return { loadPage, prepareWelcomePage, adoptWelcomePage };
 })();
