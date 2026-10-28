@@ -18,6 +18,7 @@ function initializeSiteNavigation() {
   let frame;
   function position(animate = false) {
     const selected = nav.querySelector('[aria-current="page"]');
+    document.documentElement.style.setProperty('--mobile-nav-height',nav.offsetHeight+'px');
     if (!selected || !nav.offsetWidth) return;
     if (!animate) indicator.style.transition = 'none';
     indicator.style.width = `${selected.offsetWidth}px`;
@@ -129,9 +130,24 @@ const SiteNavigation = (() => {
         === initialURL.pathname.slice(0, initialURL.pathname.lastIndexOf('/') + 1)
       && routes.has(url.pathname.split('/').pop());
   }
+  async function prepareImages(doc, url, signal) {
+    const images=[...doc.querySelectorAll('main img')].filter(image=>!image.closest('[hidden]')).slice(0,2);
+    await Promise.all(images.map(async node=>{
+      const image=new Image();image.src=new URL(node.getAttribute('src'),url).href;
+      let onAbort;
+      try {
+        await Promise.race([image.decode().catch(()=>{}),new Promise((resolve,reject)=>{
+          onAbort=()=>reject(new DOMException('Navigation expired','AbortError'));
+          if(signal.aborted)onAbort();else signal.addEventListener('abort',onAbort,{once:true});
+        })]);
+      } finally {if(onAbort)signal.removeEventListener('abort',onAbort);}
+      if(signal.aborted)throw new DOMException('Navigation expired','AbortError');
+    }));
+  }
   async function loadPage(url) {
     const key = keyFor(url);
     if (cache.has(key)) return new DOMParser().parseFromString(cache.get(key), 'text/html');
+    if(pending.get(key)?.controller.signal.aborted)pending.delete(key);
     if (!pending.has(key)) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 6000);
@@ -144,13 +160,14 @@ const SiteNavigation = (() => {
           if (!doc.querySelector('.site-header') || !doc.querySelector('main') || !doc.querySelector('footer')) {
             throw new Error('Missing page structure');
           }
+          await prepareImages(doc, url, controller.signal);
           remember(url, html);
           return html;
-        } finally { clearTimeout(timeout); pending.delete(key); }
+        } finally { clearTimeout(timeout); if(pending.get(key)?.controller===controller)pending.delete(key); }
       })();
-      pending.set(key, request);
+      pending.set(key, {request, controller});
     }
-    return new DOMParser().parseFromString(await pending.get(key), 'text/html');
+    return new DOMParser().parseFromString(await pending.get(key).request, 'text/html');
   }
   function wrapContent() {
     let stack = document.querySelector('.page-stack');
@@ -179,46 +196,49 @@ const SiteNavigation = (() => {
     if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
   }
   async function navigate(url, { restore = false, key } = {}) {
-    const ticket = ++sequence;
-    saveScroll();
+    const ticket=++sequence;
+    saveScroll();finishTransition?.();
+    for(const [pendingKey,work] of pending)if(pendingKey!==keyFor(url))work.controller.abort();
     try {
-      const doc = await loadPage(url);
-      if (ticket !== sequence) return;
-      finishTransition?.();
-      const stack = wrapContent();
-      if (!stack) throw new Error('No page shell');
-      const outgoing = stack.querySelector('.page-layer');
-      const incoming = document.createElement('div'); incoming.className = 'page-layer';
-      incoming.append(doc.querySelector('main'), doc.querySelector('footer'));
+      const doc=await loadPage(url);
+      if(ticket!==sequence)return;
+      const stack=wrapContent();if(!stack)throw new Error('No page shell');
+      const outgoing=stack.querySelector('.page-layer');
+      const oldRect=outgoing.getBoundingClientRect();
+      const incoming=document.createElement('div');incoming.className='page-layer page-layer-incoming';
+      incoming.append(doc.querySelector('main'),doc.querySelector('footer'));
+      const moving=!motion.matches&&Boolean(Element.prototype.animate);
+      if(moving){incoming.style.opacity='0';incoming.style.transform='translateY(8px)';}
+      // Freeze the actual on-screen position before scroll restoration or layout changes.
+      stack.style.minHeight=oldRect.height+'px';
       outgoing.classList.add('page-layer-outgoing');
-      outgoing.inert = true; outgoing.setAttribute('aria-hidden', 'true');
-      outgoing.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+      Object.assign(outgoing.style,{top:oldRect.top+'px',left:oldRect.left+'px',width:oldRect.width+'px',height:oldRect.height+'px'});
+      outgoing.inert=true;outgoing.setAttribute('aria-hidden','true');
+      outgoing.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
       stack.append(incoming);
+      stack.style.minHeight=Math.max(oldRect.height,incoming.getBoundingClientRect().height)+'px';
       metadata(doc);
-      if (restore) { currentKey = key; currentURL = new URL(url.href); }
-      else entry(url);
-      siteNavigationSelect?.(url, !restore && !motion.matches);
-      place(url, currentKey, restore);
-      let animations = [];
-      const finish = () => {
-        animations.forEach(animation => animation.cancel()); outgoing.remove();
-        if (finishTransition === finish) finishTransition = undefined;
+      if(restore){currentKey=key;currentURL=new URL(url.href);}else entry(url);
+      siteNavigationSelect?.(url,!restore&&moving);
+      place(url,currentKey,restore);
+      let animations=[],done=false;
+      const finish=()=>{
+        if(done)return;done=true;
+        animations.forEach(animation=>animation.cancel());outgoing.remove();
+        incoming.style.opacity='';incoming.style.transform='';incoming.classList.remove('page-layer-incoming');
+        if(finishTransition===finish){stack.style.minHeight='';finishTransition=undefined;}
       };
-      finishTransition = finish;
-      if (!motion.matches && Element.prototype.animate) {
-        animations = [
-          outgoing.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-16px)' }],
-            { duration: 240, easing: 'ease-out', fill: 'both' }),
-          incoming.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'translateY(0)' }],
-            { duration: 360, delay: 120, easing: 'cubic-bezier(.2,.65,.25,1)', fill: 'both' }),
+      finishTransition=finish;
+      if(moving){
+        animations=[
+          outgoing.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-8px)'}],{duration:160,easing:'ease-out',fill:'both'}),
+          incoming.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:220,delay:60,easing:'cubic-bezier(.2,.65,.25,1)',fill:'both'})
         ];
-        await Promise.allSettled(animations.map(animation => animation.finished));
+        await Promise.allSettled(animations.map(animation=>animation.finished));
       }
-      finish();
-      document.dispatchEvent(new CustomEvent('mars:page', { detail: { restore } }));
-    } catch {
-      if (ticket === sequence) location.assign(url.href);
-    }
+      finish();if(ticket!==sequence)return;
+      document.dispatchEvent(new CustomEvent('mars:page',{detail:{restore}}));
+    }catch{if(ticket===sequence)location.assign(url.href);}
   }
   function adoptWelcomePage(url) {
     saveScroll(); entry(url); wrapContent(); initializeSiteNavigation();
@@ -242,7 +262,7 @@ const SiteNavigation = (() => {
     if (keyFor(url) === keyFor(currentURL)) {
       ++sequence; finishTransition?.();
       if (url.hash !== currentURL.hash) { saveScroll(); entry(url); }
-      siteNavigationSelect?.(url, false); place(url, currentKey);
+      siteNavigationSelect?.(url, false); place(url, currentKey); document.dispatchEvent(new CustomEvent('mars:anchor'));
       return;
     }
     navigate(url);
