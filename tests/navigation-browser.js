@@ -40,6 +40,7 @@
         const entry={page,frames:frames.length,overlapFrames:overlap.length,scrollRange:scrolls.length?Math.max(...scrolls)-Math.min(...scrolls):null,headerRange:headers.length?Math.max(...headers)-Math.min(...headers):null,cursorChanges:new Set(frames.map(f=>f.cursor)).size};
         results.push(entry);
         if(frames.some(f=>f.portfolioBorder>0))failures.push(`${page}: portfolio gains a border while its IDs are retired`);
+        if(frames.some(f=>Math.max(0,...f.mains.map(m=>m.opacity))<.15))failures.push(`${page}: content disappears between exit and entry`);
         if(overlap.length)failures.push(`${page}: old and new text overlap in ${overlap.length} frames`);
         if(!arrived.length)failures.push(`${page}: destination never became observable`);
         if(entry.scrollRange>1)failures.push(`${page}: scroll jumps ${entry.scrollRange}px`);
@@ -61,6 +62,16 @@
       const repeated=snapshot();
       if(during.mains.length>1&&repeated.mains.length===1&&repeated.mains[0].opacity>.99)failures.push('Repeating the selected link snaps an unfinished transition to its end');
       await capture(500);
+      // Scroll only downward while a long page becomes a shorter page.
+      // A delayed document-height collapse must not pull the user upward.
+      frame.contentDocument.querySelector('#site-nav a[href="portfolio.html"]').click();
+      await waitFor(()=>frame.contentWindow.location.pathname.endsWith('/portfolio.html'));await capture(400);
+      frame.contentDocument.querySelector('#site-nav a[href="about.html"]').click();
+      await waitFor(()=>frame.contentWindow.location.pathname.endsWith('/about.html'));
+      const scrollFrames=[],scrollStart=performance.now();let sent=0;
+      do{const elapsed=performance.now()-scrollStart;if(sent<4&&elapsed>=60+sent*40){frame.contentWindow.scrollBy(0,300);sent++;}scrollFrames.push(snapshot());await next();}while(performance.now()-scrollStart<650);
+      const pullback=Math.max(0,...scrollFrames.slice(1).map((f,i)=>scrollFrames[i].scroll-f.scroll));
+      if(pullback>1)failures.push(`Scrolling during navigation pulls backward ${pullback}px`);
       output.textContent=JSON.stringify({pass:failures.length===0,results,failures},null,2);
     }catch(error){output.textContent=JSON.stringify({pass:false,results,failures:[String(error)]},null,2);}
     output.dataset.finished='true';

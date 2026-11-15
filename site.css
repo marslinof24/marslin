@@ -32,3 +32,6 @@
 .featured-project .feature-screenshot{display:block;height:auto;align-self:center}
 
 .workspace-bench{position:relative}.workspace-anchor{position:absolute;top:0;left:0;scroll-margin-top:24px}
+
+/* Translated incoming content must not inflate the document scroll range. */
+.page-stack{overflow:clip}

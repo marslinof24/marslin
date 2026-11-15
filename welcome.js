@@ -115,8 +115,10 @@ function initializeWelcome() {
         activeAnimations.forEach(animation=>animation.finished.then(()=>animation.cancel()).catch(()=>{}));
         activeStage=undefined;activeFlight=undefined;
         SiteNavigation.adoptWelcomePage(destination);window.scrollTo({top:offset,behavior:'instant'});
-        document.querySelector(`#site-nav a[href="${CSS.escape(href)}"]`)?.click();
-      },{once:true});
+        // HTMLElement.click() ignores recursive activation of the same link.
+        // Forward the intent after this click has finished dispatching.
+        queueMicrotask(()=>document.querySelector(`#site-nav a[href="${CSS.escape(href)}"]`)?.click());
+      },{once:true,signal:lifetime.signal});
 
       const anchor = destination.hash && stage.querySelector(`#${CSS.escape(destination.hash.slice(1))}`);
       let contactScroll = 0;

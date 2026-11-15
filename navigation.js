@@ -18,10 +18,11 @@ function initializeSiteNavigation() {
   let frame,motionFrame,lastTime;
   const spring={value:[0,0,0,0],velocity:[0,0,0,0],target:[0,0,0,0]};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  let basisWidth=1,basisHeight=1;
   function paint(){
     const [x,y,width,height]=spring.value;
-    indicator.style.width=width+'px';indicator.style.height=height+'px';
-    indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
+    // The spring changes only the composited transform, never layout dimensions.
+    indicator.style.transform=`translate3d(${x}px,${y}px,0) scale(${width/basisWidth},${height/basisHeight})`;
   }
   function step(now){
     const dt=Math.min(.032,(now-lastTime)/1000||.016);lastTime=now;
@@ -39,6 +40,10 @@ function initializeSiteNavigation() {
     const selected = nav.querySelector('[aria-current="page"]');
     document.documentElement.style.setProperty('--mobile-nav-height',nav.offsetHeight+'px');
     if (!selected || !nav.offsetWidth) return;
+    basisWidth=Math.max(1,...links.map(link=>link.offsetWidth));
+    basisHeight=Math.max(1,...links.map(link=>link.offsetHeight));
+    indicator.style.width=basisWidth+'px';indicator.style.height=basisHeight+'px';
+    indicator.style.transformOrigin='0 0';
     indicator.style.transition='none';
     spring.target=[selected.offsetLeft,selected.offsetTop,selected.offsetWidth,selected.offsetHeight];
     if(!animate||reduce.matches){
@@ -250,7 +255,7 @@ const SiteNavigation = (() => {
       const incoming=document.createElement('div');incoming.className='page-layer page-layer-incoming';
       incoming.append(doc.querySelector('main'),doc.querySelector('footer'));
       const moving=!motion.matches&&Boolean(Element.prototype.animate);
-      if(moving){incoming.style.opacity='0';incoming.style.transform='translateY(4px)';}
+      if(moving){incoming.style.opacity='.92';incoming.style.transform='translateY(4px)';}
       // Freeze the actual on-screen position before scroll restoration or layout changes.
       stack.style.minHeight=oldRect.height+'px';
       outgoing.classList.add('page-layer-outgoing');
@@ -258,7 +263,9 @@ const SiteNavigation = (() => {
       outgoing.inert=true;outgoing.setAttribute('aria-hidden','true');
       retireIdentifiers(outgoing,ticket);
       stack.append(incoming);
-      stack.style.minHeight=Math.max(oldRect.height,incoming.getBoundingClientRect().height)+'px';
+      // Once inserted, reserve only the new document's real height. Keeping the
+      // old page height until animation end lets scrolling overshoot, then snap back.
+      stack.style.minHeight=incoming.getBoundingClientRect().height+'px';
       metadata(doc);
       if(restore){currentKey=key;currentURL=new URL(url.href);}else entry(url);
       siteNavigationSelect?.(url,!restore&&moving);
@@ -293,11 +300,13 @@ const SiteNavigation = (() => {
         return frozen;
       };
       if(moving){
-        animations=[
-          outgoing.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-4px)'}],{duration:120,easing:'ease-out',fill:'both'}),
-          // Do not cross-fade two readable pages: overlapping text creates ghosting.
-          incoming.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:180,delay:120,easing:'cubic-bezier(.2,.65,.25,1)',fill:'both'})
-        ];
+        // Keep readable content on screen. A delayed zero-opacity entry creates
+        // a visible pause; overlapping readable pages creates double text.
+        outgoing.style.opacity='0';
+        animations=[incoming.animate(
+          [{opacity:.92,transform:'translateY(4px)'},{opacity:1,transform:'none'}],
+          {duration:180,easing:'cubic-bezier(.2,.65,.25,1)',fill:'both'}
+        )];
         await Promise.allSettled(animations.map(animation=>animation.finished));
       }
       finish();
