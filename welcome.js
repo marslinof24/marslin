@@ -5,6 +5,7 @@ function initializeWelcome() {
   const navigation = document.querySelector('.welcome-navigation');
   if (!navigation) return;
   let transitioning = false;
+  let choice = 0;
   const lifetime = new AbortController();
   let activeStage;
   let activeFlight;
@@ -55,14 +56,15 @@ function initializeWelcome() {
     if (reducedMotion.matches || !Element.prototype.animate || location.protocol === 'file:') return;
     event.preventDefault();
     if (transitioning) return;
-    transitioning = true;
+    const selectedChoice=++choice;
     const destination = new URL(link.href);
     let stage;
     let flight;
     try {
       link.setAttribute('aria-busy', 'true');
       const incoming = await SiteNavigation.loadPage(destination);
-      if (lifetime.signal.aborted) return;
+      if (lifetime.signal.aborted || selectedChoice!==choice) {link.removeAttribute('aria-busy');return;}
+      transitioning=true;
       if (!incoming.querySelector('.site-header') || !incoming.querySelector('main')) throw new Error('Missing page structure');
 
       const word = link.querySelector('.destination-word');
@@ -83,14 +85,39 @@ function initializeWelcome() {
       stage = document.createElement('div');
       activeStage = stage;
       stage.className = `site-arrival ${incoming.body.className}`;
-      stage.inert = true;
-      stage.setAttribute('aria-hidden', 'true');
+      stage.inert = false;
       stage.append(...incoming.body.childNodes);
+      stage.querySelectorAll('main,footer').forEach(node=>node.inert=true);
       document.body.append(stage, flight);
       document.body.classList.add('is-transitioning');
       // Prepare the final wrappers, styles and selected controls before reveal.
       // Adoption later moves these same nodes without changing their layout.
       SiteNavigation.prepareWelcomePage(stage);
+      // The arriving header is already a usable control surface. If it is
+      // activated mid-flight, adopt the same live nodes without finishing or
+      // cancelling their visual animations, then let the persistent router run.
+      stage.querySelector('#site-nav').addEventListener('click',event=>{
+        const next=event.target.closest('a');
+        if(!next||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+        event.preventDefault();event.stopPropagation();
+        const href=next.getAttribute('href'),children=[...stage.childNodes],offset=stage.scrollTop;
+        lifetime.abort();layoutObserver.disconnect();window.removeEventListener('resize',scheduleLayout);cancelAnimationFrame(layoutFrame);
+        document.body.replaceChildren(...children);
+        document.body.className=incoming.body.className+' arrival-complete';
+        document.title=incoming.title;
+        const description=incoming.querySelector('meta[name="description"]');
+        if(description)document.querySelector('meta[name="description"]').content=description.content;
+        document.querySelectorAll('main,footer').forEach(node=>node.inert=false);
+        targetFade.cancel();target.style.opacity='';
+        // Preserve the flight at its current presentation position while it fades.
+        document.body.append(flight);
+        flight.animate([{opacity:getComputedStyle(flight).opacity},{opacity:0}],{duration:100,fill:'forwards'}).finished.finally(()=>flight.remove());
+        activeAnimations.forEach(animation=>animation.finished.then(()=>animation.cancel()).catch(()=>{}));
+        activeStage=undefined;activeFlight=undefined;
+        SiteNavigation.adoptWelcomePage(destination);window.scrollTo({top:offset,behavior:'instant'});
+        document.querySelector(`#site-nav a[href="${CSS.escape(href)}"]`)?.click();
+      },{once:true});
+
       const anchor = destination.hash && stage.querySelector(`#${CSS.escape(destination.hash.slice(1))}`);
       let contactScroll = 0;
       if (anchor) {
@@ -137,6 +164,7 @@ function initializeWelcome() {
       activeAnimations.push(...[fadeOut, skipFade, move, wordFade, targetFade, header, reveal, footer].filter(Boolean));
       activeAnimations.forEach(animation => animation.finished.catch(() => {}));
       await move.finished;
+      if(lifetime.signal.aborted)return;
       target.style.opacity = '';
       targetFade.cancel();
       flight.remove();
@@ -157,6 +185,8 @@ function initializeWelcome() {
       });
       await Promise.all([reveal.finished, header.finished, footer?.finished, contactArrival]);
 
+      if(lifetime.signal.aborted)return;
+      stage.querySelectorAll('main,footer').forEach(node=>node.inert=false);
       // Adopt the actual destination DOM and URL, so refresh, Back, and normal links work.
       const children = [...stage.childNodes];
       const arrivalScroll = stage.scrollTop;
@@ -178,7 +208,7 @@ function initializeWelcome() {
       focusTarget.focus({ preventScroll: true });
       window.scrollTo({top:arrivalScroll,behavior:'instant'});
     } catch {
-      if (lifetime.signal.aborted) return;
+      if (lifetime.signal.aborted || selectedChoice!==choice) return;
       // Keep destinations usable on slow networks, blocked fetch, or unsupported transitions.
       stage?.remove();
       flight?.remove();

@@ -15,20 +15,37 @@ function initializeSiteNavigation() {
   indicator.setAttribute('aria-hidden', 'true');
   nav.prepend(indicator);
   nav.classList.add('nav-has-indicator');
-  let frame;
+  let frame,motionFrame,lastTime;
+  const spring={value:[0,0,0,0],velocity:[0,0,0,0],target:[0,0,0,0]};
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  function paint(){
+    const [x,y,width,height]=spring.value;
+    indicator.style.width=width+'px';indicator.style.height=height+'px';
+    indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
+  }
+  function step(now){
+    const dt=Math.min(.032,(now-lastTime)/1000||.016);lastTime=now;
+    let moving=false;
+    for(let i=0;i<4;i++){
+      const distance=spring.value[i]-spring.target[i],v=spring.velocity[i],w=22,e=Math.exp(-w*dt),c=v+w*distance;
+      spring.value[i]=spring.target[i]+(distance+c*dt)*e;
+      spring.velocity[i]=(v-w*c*dt)*e;
+      if(Math.abs(spring.value[i]-spring.target[i])>.02||Math.abs(spring.velocity[i])>.05)moving=true;
+    }
+    paint();motionFrame=moving?requestAnimationFrame(step):undefined;
+  }
   function position(animate = false) {
+    document.documentElement.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>24);
     const selected = nav.querySelector('[aria-current="page"]');
     document.documentElement.style.setProperty('--mobile-nav-height',nav.offsetHeight+'px');
     if (!selected || !nav.offsetWidth) return;
-    if (!animate) indicator.style.transition = 'none';
-    indicator.style.width = `${selected.offsetWidth}px`;
-    indicator.style.height = `${selected.offsetHeight}px`;
-    indicator.style.transform = `translate3d(${selected.offsetLeft}px, ${selected.offsetTop}px, 0)`;
-    indicator.style.opacity = '1';
-    if (!animate) {
-      indicator.getBoundingClientRect(); // Commit geometry before enabling motion.
-      indicator.style.transition = '';
-    }
+    indicator.style.transition='none';
+    spring.target=[selected.offsetLeft,selected.offsetTop,selected.offsetWidth,selected.offsetHeight];
+    if(!animate||reduce.matches){
+      cancelAnimationFrame(motionFrame);motionFrame=undefined;
+      spring.value=[...spring.target];spring.velocity.fill(0);paint();
+    }else if(!motionFrame){lastTime=performance.now();motionFrame=requestAnimationFrame(step);}
+    indicator.style.opacity='1';
     nav.classList.add('indicator-ready');
   }
   function refresh() {
@@ -75,14 +92,14 @@ function initializeSiteNavigation() {
     if (event.key === 'End') next = links.length - 1;
     if (next !== undefined) { event.preventDefault(); links[next].focus(); }
   }, options);
-  matchMedia('(min-width: 601px)').addEventListener('change', () => { closeMenu(); refresh(); }, options);
+  matchMedia('(min-width: 651px)').addEventListener('change', () => { closeMenu(); refresh(); }, options);
   const observer = new ResizeObserver(refresh);
   observer.observe(nav);
   links.forEach(link => observer.observe(link));
   document.fonts.ready.then(() => { if (!controller.signal.aborted) refresh(); });
   position();
   siteNavigationCleanup = () => {
-    controller.abort(); observer.disconnect(); cancelAnimationFrame(frame);
+    controller.abort(); observer.disconnect(); cancelAnimationFrame(frame);cancelAnimationFrame(motionFrame);
     indicator.remove(); nav.classList.remove('nav-has-indicator', 'indicator-ready');
   };
 }
@@ -103,6 +120,7 @@ const SiteNavigation = (() => {
   let currentURL = new URL(location.href);
   let currentKey;
   let finishTransition;
+  let interruptTransition;
   const keyFor = url => url.pathname + url.search;
   const newKey = () => `${Date.now()}-${++serial}`;
   function entry(url, replace = false) {
@@ -197,8 +215,10 @@ const SiteNavigation = (() => {
   }
   function retireIdentifiers(layer,ticket) {
     // #main carries the page width/padding. Preserve it before renaming IDs.
-    const main=layer.querySelector('main'),style=getComputedStyle(main);
-    for(const property of ['width','max-width','margin-left','margin-right','padding-left','padding-right','min-height','box-sizing'])main.style.setProperty(property,style.getPropertyValue(property));
+    layer.querySelectorAll('main').forEach(main=>{
+      const style=getComputedStyle(main);
+      for(const property of ['width','max-width','margin-left','margin-right','padding-left','padding-right','min-height','box-sizing'])main.style.setProperty(property,style.getPropertyValue(property));
+    });
     const identifiers=new Map();
     layer.querySelectorAll('[id]').forEach(node=>{const old=node.id,next=`retired-${ticket}-${old}`;identifiers.set(old,next);node.id=next;});
     layer.querySelectorAll('*').forEach(node=>{
@@ -213,13 +233,19 @@ const SiteNavigation = (() => {
   }
   async function navigate(url, { restore = false, key } = {}) {
     const ticket=++sequence;
-    saveScroll();finishTransition?.();
+    document.querySelectorAll('#site-nav a').forEach(link=>{
+      if(new URL(link.href).pathname===url.pathname)link.setAttribute('aria-busy','true');
+      else link.removeAttribute('aria-busy');
+    });
+    saveScroll();
     for(const [pendingKey,work] of pending)if(pendingKey!==keyFor(url))work.controller.abort();
     try {
       const doc=await loadPage(url);
       if(ticket!==sequence)return;
+      const frozen=interruptTransition?.();
       const stack=wrapContent();if(!stack)throw new Error('No page shell');
-      const outgoing=stack.querySelector('.page-layer');
+      const outgoing=frozen||stack.querySelector(':scope > .page-layer');
+      outgoing.querySelectorAll('video').forEach(video=>video.pause());
       const oldRect=outgoing.getBoundingClientRect();
       const incoming=document.createElement('div');incoming.className='page-layer page-layer-incoming';
       incoming.append(doc.querySelector('main'),doc.querySelector('footer'));
@@ -243,9 +269,26 @@ const SiteNavigation = (() => {
         if(done)return;done=true;
         animations.forEach(animation=>animation.cancel());outgoing.remove();
         incoming.style.opacity='';incoming.style.transform='';incoming.classList.remove('page-layer-incoming');
-        if(finishTransition===finish){stack.style.minHeight='';finishTransition=undefined;}
+        if(finishTransition===finish){stack.style.minHeight='';finishTransition=undefined;interruptTransition=undefined;}
       };
       finishTransition=finish;
+      interruptTransition=()=>{
+        if(done)return;
+        done=true;
+        // Preserve the visible composite, including both partially faded layers.
+        // A new destination fades over these exact presentation values.
+        const layers=[outgoing,incoming].map(node=>({node,rect:node.getBoundingClientRect(),opacity:getComputedStyle(node).opacity}));
+        animations.forEach(animation=>animation.cancel());
+        const frozen=document.createElement('div');frozen.className='page-layer';
+        Object.assign(frozen.style,{position:'fixed',inset:'0',width:innerWidth+'px',height:innerHeight+'px',pointerEvents:'none',overflow:'hidden'});
+        for(const {node,rect,opacity} of layers){
+          node.classList.remove('page-layer-incoming');
+          Object.assign(node.style,{position:'fixed',top:rect.top+'px',left:rect.left+'px',width:rect.width+'px',height:rect.height+'px',transform:'none',opacity});
+          frozen.append(node);
+        }
+        stack.append(frozen);finishTransition=undefined;interruptTransition=undefined;
+        return frozen;
+      };
       if(moving){
         animations=[
           outgoing.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-8px)'}],{duration:160,easing:'ease-out',fill:'both'}),
@@ -256,6 +299,7 @@ const SiteNavigation = (() => {
       finish();if(ticket!==sequence)return;
       document.dispatchEvent(new CustomEvent('mars:page',{detail:{restore}}));
     }catch{if(ticket===sequence)location.assign(url.href);}
+    finally{if(ticket===sequence)document.querySelectorAll('#site-nav [aria-busy]').forEach(link=>link.removeAttribute('aria-busy'));}
   }
   function adoptWelcomePage(url) {
     saveScroll(); entry(url); wrapContent(); initializeSiteNavigation();
