@@ -74,3 +74,6 @@ On 2026-11-15 the owner explicitly authorized push. The reviewed feature is prom
 Branch: `fix/portfolio-transition-border`. Retiring outgoing IDs made the `#portfolio-profile` border override stop matching, so the underlying `.portfolio-profile` 1px top border appeared during its exit. The override now uses the stable class, retaining the zero border before, during, and after retirement. The class preserves the intended appearance; no legitimate Workspace section separators or keyboard outlines are removed. The base stylesheet query version is advanced.
 
 The browser regression now directly covers Portfolio → Workspace, samples the profile border throughout the transition, and rejects any nonzero border. It failed before the correction for both Workspace and About departures, then passed with the revised stylesheet at desktop and 390px frame widths. The iframe fixture has a versioned initial URL to avoid replaying stale document/resource references. This follow-up is local only until a new push instruction.
+
+
+Publication follow-up: the owner authorized push on 2026-11-16. The Portfolio border correction is promoted to main as v1.1.1; the preceding local-only statement describes its review stage.

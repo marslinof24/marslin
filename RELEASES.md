@@ -1,5 +1,11 @@
 # Releases
 
+## v1.1.1 — 2026-11-16
+
+Fixes the transient 1px top border when leaving Portfolio. The zero-border override now follows the stable profile class when navigation retires outgoing IDs. Updated stylesheet versioning and browser regression checks cover Portfolio → Workspace and Portfolio → About at desktop and mobile widths.
+
+Development branch: `fix/portfolio-transition-border`. No content or interaction timing changes.
+
 ## v1.1.0 — 2026-11-15
 
 Publishes the reviewed Apple refinement and Perfect Solution (Demo) case.
