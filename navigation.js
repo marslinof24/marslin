@@ -250,7 +250,7 @@ const SiteNavigation = (() => {
       const incoming=document.createElement('div');incoming.className='page-layer page-layer-incoming';
       incoming.append(doc.querySelector('main'),doc.querySelector('footer'));
       const moving=!motion.matches&&Boolean(Element.prototype.animate);
-      if(moving){incoming.style.opacity='0';incoming.style.transform='translateY(8px)';}
+      if(moving){incoming.style.opacity='0';incoming.style.transform='translateY(4px)';}
       // Freeze the actual on-screen position before scroll restoration or layout changes.
       stack.style.minHeight=oldRect.height+'px';
       outgoing.classList.add('page-layer-outgoing');
@@ -269,7 +269,10 @@ const SiteNavigation = (() => {
         if(done)return;done=true;
         animations.forEach(animation=>animation.cancel());outgoing.remove();
         incoming.style.opacity='';incoming.style.transform='';incoming.classList.remove('page-layer-incoming');
-        if(finishTransition===finish){stack.style.minHeight='';finishTransition=undefined;interruptTransition=undefined;}
+        if(finishTransition===finish){
+          stack.style.minHeight='';finishTransition=undefined;interruptTransition=undefined;
+          document.dispatchEvent(new CustomEvent('mars:page',{detail:{restore}}));
+        }
       };
       finishTransition=finish;
       interruptTransition=()=>{
@@ -291,13 +294,13 @@ const SiteNavigation = (() => {
       };
       if(moving){
         animations=[
-          outgoing.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-8px)'}],{duration:160,easing:'ease-out',fill:'both'}),
-          incoming.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:220,delay:60,easing:'cubic-bezier(.2,.65,.25,1)',fill:'both'})
+          outgoing.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-4px)'}],{duration:120,easing:'ease-out',fill:'both'}),
+          // Do not cross-fade two readable pages: overlapping text creates ghosting.
+          incoming.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:180,delay:120,easing:'cubic-bezier(.2,.65,.25,1)',fill:'both'})
         ];
         await Promise.allSettled(animations.map(animation=>animation.finished));
       }
-      finish();if(ticket!==sequence)return;
-      document.dispatchEvent(new CustomEvent('mars:page',{detail:{restore}}));
+      finish();
     }catch{if(ticket===sequence)location.assign(url.href);}
     finally{if(ticket===sequence)document.querySelectorAll('#site-nav [aria-busy]').forEach(link=>link.removeAttribute('aria-busy'));}
   }
@@ -326,7 +329,12 @@ const SiteNavigation = (() => {
     if (!isContent(url) || !document.body.classList.contains('site-page') || location.protocol === 'file:') return;
     event.preventDefault();
     if (keyFor(url) === keyFor(currentURL)) {
-      ++sequence; finishTransition?.();
+      ++sequence;
+      for(const work of pending.values())work.controller.abort();
+      document.querySelectorAll('#site-nav [aria-busy]').forEach(link=>link.removeAttribute('aria-busy'));
+      // Repeating an active destination must not force a half-faded page to full opacity.
+      if(url.hash===new URL(location.href).hash&&finishTransition)return;
+      finishTransition?.();
       if (url.hash !== new URL(location.href).hash) { saveScroll(); entry(url); }
       siteNavigationSelect?.(url, false); place(url, currentKey); document.dispatchEvent(new CustomEvent('mars:anchor'));
       return;

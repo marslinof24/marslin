@@ -51,3 +51,14 @@ python -m http.server 4182 --bind 127.0.0.1
 ```
 
 Open `http://127.0.0.1:4182/index.html` for Welcome, then use the real HTML links. This iteration is intentionally labeled Local preview. Publishing requires a separate user instruction and removal of that label.
+
+
+## Navigation stutter correction — 2026-11-15
+
+The supplied recording shows the production GitHub Pages site, rather than this local preview. A browser regression harness reproduced readable old/new text overlap in both production and the initial preview. A minimal About → Portfolio transition recorded 11 overlapping samples over approximately 42ms. This is visual ghosting; the tested browser did not establish a long main-thread stall as the cause of the recording's behavior.
+
+The content transition now retires the old page over 120ms, then reveals the new page over 180ms, with only 4px travel. It intentionally replaces the earlier overlapping fade. Header, background, cursor, caching, and latest-choice handling persist. Repeated activation of the already selected destination no longer forces an unfinished transition to its final opacity. Lifecycle completion still runs after cancellation of an unrelated pending request. The navigation resource version is advanced to avoid retaining the old script in memory cache.
+
+Regression page: `tests/navigation-browser.html` (1440px frame) or `tests/navigation-browser.html?width=390` (mobile frame). Click Run navigation checks. It loads the real pages/router, samples computed opacity and geometry, and checks four routes, rapid redirection, and repeated activation without mocks or dependencies. Before the correction it fails on readable overlap; an added repeated-link check also failed before its fix. After correction both frame sizes report pass=true, zero readable overlap, zero scroll/header movement during the tested route transitions, and one unchanged cursor style. The threshold for readable overlap is opacity >0.12 for more than one main content region; it is a regression criterion rather than a universal perceptual metric.
+
+Existing seven entry tests, JavaScript syntax, and diff whitespace checks pass. Manual contact navigation and Back/Forward restore the Workspace and About contact scroll positions; no console warnings/errors were observed. QA recordings/reports remain in ignored local cache. The Windows recording was inspected through extracted frames; no external upload was used. Browser emulation is not equivalent to a rerun on the user's physical Brave/GPU configuration. No production change or push has been made.
