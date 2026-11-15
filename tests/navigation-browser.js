@@ -8,13 +8,15 @@
   function snapshot(){
     const win=frame.contentWindow,doc=frame.contentDocument;
     const header=doc.querySelector('.site-header');
+    const profile=doc.querySelector('.portfolio-profile');
+    const portfolioBorder=profile?parseFloat(win.getComputedStyle(profile).borderTopWidth):0;
     const mains=[...doc.querySelectorAll('.page-stack main')].map(main=>{
       let opacity=1,node=main;
       while(node&&node!==doc.body){opacity*=Number(win.getComputedStyle(node).opacity);node=node.parentElement;}
       const rect=main.getBoundingClientRect();
       return {title:main.querySelector('h1')?.textContent,opacity,top:rect.top,width:rect.width};
     });
-    return {time:performance.now(),path:win.location.pathname,scroll:win.scrollY,headerTop:header?.getBoundingClientRect().top,cursor:doc.body&&win.getComputedStyle(doc.body).cursor,mains};
+    return {portfolioBorder,time:performance.now(),path:win.location.pathname,scroll:win.scrollY,headerTop:header?.getBoundingClientRect().top,cursor:doc.body&&win.getComputedStyle(doc.body).cursor,mains};
   }
   async function capture(ms){const frames=[],until=performance.now()+ms;do{frames.push(snapshot());await next();}while(performance.now()<until);return frames;}
   document.querySelector('#run').onclick=async()=>{
@@ -23,7 +25,7 @@
     try{
       await waitFor(()=>frame.contentDocument?.querySelector('#site-nav')&&frame.contentDocument.readyState==='complete');
       await frame.contentDocument.fonts.ready;
-      for(const page of ['portfolio.html','about.html','workspace.html','home.html']){
+      for(const page of ['portfolio.html','workspace.html','portfolio.html','about.html','home.html']){
         frame.contentDocument.querySelector(`#site-nav a[href="${page}"]`).click();
         const frames=await capture(650);
         // A cold remote load may exceed the animation observation window.
@@ -37,6 +39,7 @@
         const scrolls=arrived.map(f=>f.scroll),headers=frames.map(f=>f.headerTop).filter(Number.isFinite);
         const entry={page,frames:frames.length,overlapFrames:overlap.length,scrollRange:scrolls.length?Math.max(...scrolls)-Math.min(...scrolls):null,headerRange:headers.length?Math.max(...headers)-Math.min(...headers):null,cursorChanges:new Set(frames.map(f=>f.cursor)).size};
         results.push(entry);
+        if(frames.some(f=>f.portfolioBorder>0))failures.push(`${page}: portfolio gains a border while its IDs are retired`);
         if(overlap.length)failures.push(`${page}: old and new text overlap in ${overlap.length} frames`);
         if(!arrived.length)failures.push(`${page}: destination never became observable`);
         if(entry.scrollRange>1)failures.push(`${page}: scroll jumps ${entry.scrollRange}px`);
