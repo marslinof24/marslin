@@ -1,5 +1,21 @@
 # Releases
 
+## v1.2.0 — 2026-11-16
+
+Publishes the reviewed quiet editorial layout and navigation-continuity fixes.
+
+- Home uses an unboxed featured project and a quieter secondary action.
+- About uses a narrower reading column without the interests card or quote rule.
+- Workspace prioritizes screenshots and simplifies its project index.
+- Retains Nunito, the metal M, functional glass, the black-glass cursor, existing content, and Welcome timings.
+- Replaces the sequential fade's near-empty interval with an immediately readable destination and a 180ms settle. Reserves incoming height and clips translated overflow to avoid a delayed scroll clamp.
+- Restricts the temporary Welcome header handler to its lifetime and defers mid-flight retargeting until the current click dispatch completes.
+- Animates the navigation spring with transforms rather than changing width and height every frame.
+
+Validated with actual-page route and Welcome browser checks, 390px layout review, seven entry tests, and 110 local resource references. Physical Brave/GPU and other browser engines remain outside the completed checks. Before/after measurements and their limitations are recorded in `docs/navigation-continuity-comparison.md`.
+
+Release branch: `codex/release/quiet-editorial-v1.2.0`. Annotated tag: `v1.2.0`. Previous production commit: `c837ec8`. The Current/Refined comparison directory is excluded from this release and retained on its local prototype branch. Publication was explicitly authorized by the owner on 2026-11-16; earlier local-only statements in design records describe the review phase.
+
 ## v1.1.1 — 2026-11-16
 
 Fixes the transient 1px top border when leaving Portfolio. The zero-border override now follows the stable profile class when navigation retires outgoing IDs. Updated stylesheet versioning and browser regression checks cover Portfolio → Workspace and Portfolio → About at desktop and mobile widths.

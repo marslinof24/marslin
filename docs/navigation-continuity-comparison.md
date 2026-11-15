@@ -67,3 +67,5 @@ This is a measured reduction in layout mutations, not proof that it caused the o
 The iframe checks are responsive browser simulations, not physical phone tests. Physical Brave/GPU rendering, Safari, operating-system reduced-motion settings, and real-network throttling have not been revalidated in this investigation. Existing accessibility branches and fetch/fallback logic are unchanged. The candidate needs the owner's visual review before any new publication decision.
 
 The previous sequential-fade description in `apple-refinement.md` documents the published v1.1.1 history; this report supersedes that transition design for the local candidate. `main`, the remote, and public Pages remain unchanged.
+
+Publication follow-up: the owner explicitly authorized push on 2026-11-16. The reviewed fixes are included in v1.2.0; the local-only statements above record the investigation phase. Physical-device limitations remain as stated.

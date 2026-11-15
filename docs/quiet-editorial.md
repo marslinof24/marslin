@@ -28,3 +28,7 @@ Local checks: actual-page route regression, screenshot review, and all 110 local
 resource references. The study's earlier 390px and 1440px review remains recorded
 in `lovefrom-prototype/README.md`. Browser simulations do not establish physical
 device or GPU performance. `main`, the remote and public Pages remain unchanged.
+
+Publication follow-up: the owner explicitly authorized push on 2026-11-16.
+Release v1.2.0 promotes the reviewed integration and navigation fixes without
+the prototype directory; the local-only statements above describe review status.
