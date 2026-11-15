@@ -1,5 +1,18 @@
 # Releases
 
+## v1.1.0 — 2026-11-15
+
+Publishes the reviewed Apple refinement and Perfect Solution (Demo) case.
+
+- Refines typography and responsive control layout while retaining Nunito, M, metal, and the black-glass cursor.
+- Features the development demo on Home, adds a Workspace summary, and preserves the resume and research case in Portfolio.
+- Includes a manually playable development recording and three UI screenshots; no private application source or executable is distributed.
+- Eliminates readable old/new page overlap with a 120ms exit followed by a 180ms entry, and prevents repeated active-link clicks from snapping the transition.
+- Keeps the header and cursor, interruptible navigation, entry handoff, history, contact anchor, and image viewer behavior.
+- Removes local-preview footer labels. Adds a dependency-free browser navigation regression page.
+
+Validated locally with seven entry tests and desktop/mobile-width browser checks. Physical Brave/GPU and Safari/iOS testing remain outside the completed checks. Previous production commit: `ed3c949`. Development branch: `feature/apple-refinement`. Annotated release tag: `v1.1.0`.
+
 ## v1.0.0 — 2026-10-28
 
 Promotes the reviewed HIG website from prototype `hig-full-v0.1.0-beta.2` to the public site root.

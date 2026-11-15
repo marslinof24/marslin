@@ -62,3 +62,8 @@ The content transition now retires the old page over 120ms, then reveals the new
 Regression page: `tests/navigation-browser.html` (1440px frame) or `tests/navigation-browser.html?width=390` (mobile frame). Click Run navigation checks. It loads the real pages/router, samples computed opacity and geometry, and checks four routes, rapid redirection, and repeated activation without mocks or dependencies. Before the correction it fails on readable overlap; an added repeated-link check also failed before its fix. After correction both frame sizes report pass=true, zero readable overlap, zero scroll/header movement during the tested route transitions, and one unchanged cursor style. The threshold for readable overlap is opacity >0.12 for more than one main content region; it is a regression criterion rather than a universal perceptual metric.
 
 Existing seven entry tests, JavaScript syntax, and diff whitespace checks pass. Manual contact navigation and Back/Forward restore the Workspace and About contact scroll positions; no console warnings/errors were observed. QA recordings/reports remain in ignored local cache. The Windows recording was inspected through extracted frames; no external upload was used. Browser emulation is not equivalent to a rerun on the user's physical Brave/GPU configuration. No production change or push has been made.
+
+
+## Publication authorization
+
+On 2026-11-15 the owner explicitly authorized push. The reviewed feature is promoted to main as v1.1.0, with local-preview footer labels removed. Earlier local-only status statements above describe the review phase. Deployment verification is performed separately after the push.
