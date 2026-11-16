@@ -26,10 +26,10 @@ Reviewed on 17 November 2026 (Asia/Taipei). This note records the two public Git
 
 ### Suggested website copy
 
-**Title:** Cybersecurity risk assessment demo  
-**Category:** JavaScript · Interactive reporting  
-**Description:** A browser-based practice project that turns a ten-question security scenario into a rule-based risk report, with a likelihood–impact matrix and a breakdown of the scoring factors.  
-**Context:** Learning demo. Results are illustrative, not a professional security assessment.  
+**Title:** Cybersecurity risk assessment demo
+**Category:** JavaScript · Interactive reporting
+**Description:** A browser-based practice project that turns a ten-question security scenario into a rule-based risk report, with a likelihood–impact matrix and a breakdown of the scoring factors.
+**Context:** Learning demo. Results are illustrative, not a professional security assessment.
 **Primary link:** [View project](https://github.com/marslinof24/cybersecurity-demo)
 
 ### Limits and selection notes
@@ -58,10 +58,10 @@ Reviewed on 17 November 2026 (Asia/Taipei). This note records the two public Git
 
 ### Suggested website copy
 
-**Title:** lifE — PHP & MariaDB practice  
-**Category:** PHP · SQL · Form workflows  
-**Description:** A server-side practice project that connects a multi-step lifestyle questionnaire to MariaDB, saves submitted records, and generates a printable report.  
-**Context:** Educational prototype with illustrative health estimates. Requires a PHP and MariaDB environment.  
+**Title:** lifE — PHP & MariaDB practice
+**Category:** PHP · SQL · Form workflows
+**Description:** A server-side practice project that connects a multi-step lifestyle questionnaire to MariaDB, saves submitted records, and generates a printable report.
+**Context:** Educational prototype with illustrative health estimates. Requires a PHP and MariaDB environment.
 **Primary link:** [View project](https://github.com/marslinof24/lifE-demo-code)
 
 ### Limits and selection notes
