@@ -1,0 +1,39 @@
+/* Real learning work, kept on the same quiet reading surface as the main site. */
+.practice-study{padding:6px 0 20px}
+.practice-tech{font-size:.9375rem;color:var(--muted);margin-bottom:18px}
+.practice-study>h3{font-size:clamp(1.8rem,3vw,2.5rem);line-height:1.2;margin:0 0 24px;max-width:26ch}
+.practice-study>p:not(.practice-tech):not(.practice-caption){max-width:64ch;margin-bottom:28px}
+.practice-study>.screenshot-open{margin-top:30px}
+.practice-study .practice-caption{font-size:.9375rem;color:var(--muted);margin:14px 0 30px}
+.practice-observations{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin:32px 0}
+.practice-observations h4,.practice-related h4{font-size:1.125rem;font-weight:600;margin-bottom:14px;line-height:1.4}
+.practice-observations p,.practice-related p{color:var(--muted)}
+.practice-pipeline{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding:26px 0;margin:0}
+.practice-pipeline li{padding-top:16px;border-top:1px solid var(--line)}
+.practice-pipeline strong{display:block;font-size:1.25rem;font-weight:600;margin-bottom:10px}
+.practice-pipeline span{display:block;font-size:1rem;line-height:1.7;color:var(--muted)}
+.practice-related{margin-top:48px;max-width:62ch}
+.practice-related .text-link{margin-top:16px}
+.practice-repositories,.portfolio-practice{padding:64px 0 72px}
+.practice-repositories>header,.portfolio-practice>header{margin-bottom:40px;max-width:65ch}
+.practice-repositories>header h2,.portfolio-practice>header h2,.practice-notes h2{font-size:clamp(1.8rem,3vw,2.4rem);margin-bottom:18px}
+.practice-repositories>header p,.portfolio-practice>header p{color:var(--muted)}
+.practice-project-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.practice-project-grid article{min-width:0}
+.practice-project-grid h3{font-size:1.65rem;line-height:1.25;margin-bottom:22px}
+.practice-project-grid article>p:not(.practice-tech){margin-bottom:20px;max-width:58ch}
+.practice-project-grid .practice-context{font-size:1rem;color:var(--muted)}
+.practice-project-grid .text-link{margin-top:4px}
+.practice-notes{padding:12px 0 70px}
+.practice-notes>div{display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:30px}
+.practice-notes a{display:block;padding:14px 0;color:inherit;min-height:44px}
+.practice-notes a>span{font-size:1.25rem;text-decoration:underline;text-decoration-color:#73828a70;text-underline-offset:7px}
+.practice-notes a>p{font-size:1rem;margin-top:18px;color:var(--muted);max-width:52ch}
+.practice-notes a:hover>span{text-decoration-color:currentColor}
+@media(max-width:750px){
+ .practice-observations,.practice-project-grid,.practice-notes>div{grid-template-columns:1fr;gap:32px}
+ .practice-pipeline{grid-template-columns:1fr;gap:16px}
+ .practice-repositories,.portfolio-practice{padding:42px 0 48px}
+ .practice-study>h3{font-size:1.9rem}
+ .practice-notes{padding-bottom:40px}
+}

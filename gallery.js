@@ -47,9 +47,12 @@
     const website=work==='website';
     document.querySelector('#website-versions').hidden=!website;
     const empty=document.querySelector('#work-placeholder');empty.hidden=website;
-    document.querySelector('#work-title').textContent=website?'Personal website':work==='linux'?'Linux environment':'Data & queries';
-    document.querySelector('#work-description').textContent=website?'Screenshots showing how this website has developed.':work==='linux'?'Linux setup screenshots and notes will be added here.':'Database queries, results, and learning notes will be added here.';
-    if(!website)empty.innerHTML='<div class="workspace-empty">Screenshots coming soon</div><p>Notes coming soon</p>';
+    document.querySelector('#work-title').textContent=website?'Personal website':work==='linux'?'Linux & Bash':'Python & MariaDB';
+    document.querySelector('#work-description').textContent=website?'Screenshots showing how this website has developed.':work==='linux'?'A terminal quiz for reviewing networking concepts.':'Web scraping, database writes, and checking the results.';
+    if(!website){
+      const template=document.getElementById('practice-'+work);
+      empty.replaceChildren(...(template?[template.content.cloneNode(true)]:[]));
+    }
     document.querySelectorAll('[data-work]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.work===work)));
     position();
   }
