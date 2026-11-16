@@ -37,3 +37,16 @@
  .practice-study>h3{font-size:1.9rem}
  .practice-notes{padding-bottom:40px}
 }
+
+/* Genuine captures stay uncropped; every image opens in the existing viewer. */
+.practice-capture{margin:30px 0;min-width:0}
+.practice-capture .screenshot-open{width:100%}
+.practice-capture .screenshot-open img{width:100%;height:auto;aspect-ratio:auto;object-fit:contain;background:#c5ccce}
+html:root .practice-capture figcaption{font-size:1rem;line-height:1.6;color:var(--muted);margin-top:14px;max-width:64ch}
+.practice-capture-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.practice-capture-grid .practice-capture{margin:8px 0 24px}
+.practice-project-grid .practice-capture{margin:24px 0}
+@media(max-width:750px){.practice-capture-grid{grid-template-columns:1fr;gap:0}}
+
+.practice-repositories .practice-project-grid{grid-template-columns:1fr}
+.practice-repositories .practice-project-grid>article>p{max-width:68ch}
