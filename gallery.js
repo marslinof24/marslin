@@ -6,7 +6,7 @@
     {label:'Metal exploration',title:'Metallic finish',image:'assets/prototype/website-metal.png',description:'This version explored darker metallic colors and a smaller logo while keeping the original page structure.'},
     {label:'Selected layout',title:'Revised layout',image:'assets/prototype/website-preview.png',description:'This version highlights project coordination and provides direct links to projects and learning notes.'}
   ];
-  let current = 0, work = 'website', animation, dialog, opener, request = 0, activeMain;
+  let current = 0, animation, dialog, opener, request = 0, activeMain;
   const escape = value => value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function controls() {
     return `<div class="version-segments" role="group" aria-label="Website version"><span class="segment-selection" aria-hidden="true"></span>${stages.map((s,i)=>`<button type="button" data-version="${i}" aria-pressed="${i===current}">${s.label}</button>`).join('')}</div>`;
@@ -42,20 +42,6 @@
     if(dialog?.open)dialog.querySelector('.gallery-image').innerHTML=`<img src="${item.image}" alt="${item.label} version of the personal website">`;
     // Keep the indicator's ongoing motion; image decoding must not reposition it.
   }
-  function chooseWork(id) {
-    work=['website','linux','data'].includes(id)?id:'website';
-    const website=work==='website';
-    document.querySelector('#website-versions').hidden=!website;
-    const empty=document.querySelector('#work-placeholder');empty.hidden=website;
-    document.querySelector('#work-title').textContent=website?'Personal website':work==='linux'?'Linux & Bash':'Python & MariaDB';
-    document.querySelector('#work-description').textContent=website?'Screenshots showing how this website has developed.':work==='linux'?'A terminal quiz for reviewing networking concepts.':'Web scraping, database writes, and checking the results.';
-    if(!website){
-      const template=document.getElementById('practice-'+work);
-      empty.replaceChildren(...(template?[template.content.cloneNode(true)]:[]));
-    }
-    document.querySelectorAll('[data-work]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.work===work)));
-    position();
-  }
   let viewerMotion,closing=false;
   function revealViewer(source){
     closing=false;viewerMotion?.cancel();
@@ -86,24 +72,17 @@
     ++request;animation?.cancel();dialog?.remove();dialog=undefined;
     ensureDialog();
     if(!document.querySelector('#stage-display'))return;
-    current=0;chooseWork(location.hash.slice(1));ensureDialog();position();
+    current=0;ensureDialog();position();
   }
   document.addEventListener('click',event=>{
     const version=event.target.closest('[data-version]');if(version)select(Number(version.dataset.version));
-    const button=event.target.closest('[data-work]');if(button) {
-      chooseWork(button.dataset.work);
-      const url=new URL(location.href);url.hash=button.dataset.work;
-      history.replaceState(history.state,'',url);
-    }
     const media=event.target.closest('[data-media]');if(media){ensureDialog();opener=media;dialog.querySelector('#gallery-title').textContent=media.dataset.mediaTitle;dialog.querySelector('.gallery-controls').innerHTML='';dialog.querySelector('.gallery-image').innerHTML=`<img src="${media.dataset.media}" alt="${escape(media.dataset.mediaTitle)}">`;dialog.showModal();revealViewer(media);dialog.querySelector('[data-close-gallery]').focus();}
     const open=event.target.closest('[data-enlarge]');if(open){ensureDialog();opener=open;dialog.querySelector('#gallery-title').textContent='Website development';dialog.querySelector('.gallery-controls').innerHTML=controls();dialog.querySelector('.gallery-image').innerHTML=`<img src="${stages[current].image}" alt="${stages[current].label} version of the personal website">`;dialog.showModal();revealViewer(open);position();dialog.querySelector('[data-close-gallery]').focus();}
     if(event.target.closest('[data-close-gallery]'))closeViewer();
   });
   document.addEventListener('mars:page',enhance);
   document.addEventListener('mars:prepare',enhance);
-  document.addEventListener('mars:anchor',()=>{if(document.querySelector('#stage-display'))chooseWork(location.hash.slice(1));});
   addEventListener('resize',()=>position());
-  addEventListener('hashchange',()=>{if(document.querySelector('#stage-display'))chooseWork(location.hash.slice(1));});
   reduced.addEventListener('change',()=>{animation?.cancel();position();});
   document.fonts.ready.then(()=>position());enhance();
 })();
