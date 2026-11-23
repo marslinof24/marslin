@@ -1,0 +1,14 @@
+# Private or local-only files. GitHub Pages publishes the repository root, so
+# anything committed here becomes public.
+Mars_Lin_Resume_Business_pweb.pdf
+*.pdf
+_local/
+.cache/
+.agents/
+skills-lock.json
+preview-*.png
+
+# Editor and OS clutter
+.vscode/
+.DS_Store
+Thumbs.db

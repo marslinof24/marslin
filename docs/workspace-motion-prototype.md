@@ -61,3 +61,9 @@ size remain separate performance questions. No Pages deployment was performed.
 
 This is a throwaway study. Production integration and deployment require a later
 decision; do not silently promote the prototype into the normal Workspace route.
+
+## Removed from the public site — 2026-11-23
+
+The owner confirmed this study was not meant to be public. Its three files were
+removed from `main`; the study remains intact on
+`codex/prototype/workspace-motion` (local and remote) for later reference.
