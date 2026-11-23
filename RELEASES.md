@@ -1,5 +1,20 @@
 # Releases
 
+## v1.3.0 — 2026-11-23
+
+Publishes the Natural Titanium redesign and the 2026-11-23 review follow-ups.
+
+- Applies the Natural Titanium finish from the Figma prototype through `titanium.css`: warm titanium ground, mirror-titanium navigation, dark titanium buttons, engraved links and rules, brushed cards, a graphite band for Home's featured project, a highlighted Portfolio outcome, and side-by-side About interest cards. The metal M moves from blue-steel to warm titanium.
+- Home headline now reads "From ethnology to IT project management." Portfolio's profile navigation becomes a full on-page index.
+- Main navigation follows Welcome's order: Home, Portfolio, Workspace, About. Footer items share one line; About no longer links to itself.
+- Screenshots and course images share one graphite mat. About aligns to the shared left content edge.
+- Removes the workspace motion study from the public site (it remains on `codex/prototype/workspace-motion`) and adds a `.gitignore` for the resume, content-studio drafts, caches and agent files.
+- Retains Nunito, the "ThisisMarsLin" brand, Welcome timings, the black-glass cursor, the router, and all content and links.
+
+Validated with Welcome and 390px navigation browser regressions (390px: 157 sampled frames per route, no overlap). Desktop navigation passed with reduced frame sampling because the in-app browser tab reported itself hidden. The seven Node entry tests were not run (Node is not installed on this machine). Physical devices and Safari/iOS remain unverified.
+
+Development branches: `fix/review-followups`, `feature/titanium-redesign`. Annotated tag: `v1.3.0`. Previous production commit: `44d868c`. Publication was explicitly authorized by the owner on 2026-11-23.
+
 ## v1.2.0 — 2026-11-16
 
 Publishes the reviewed quiet editorial layout and navigation-continuity fixes.
