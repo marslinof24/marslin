@@ -95,3 +95,19 @@ html:root .site-footer{border:0;padding-top:36px}
  html:root .workspace-index{padding-top:24px}
 }
 @media(prefers-reduced-motion:reduce){html:root .intro-art{transform:none!important}}
+
+/* Review follow-ups — 2026-11-23 */
+/* Footer: copyright and link share one centre line on desktop. */
+@media(min-width:651px){html:root .site-page .site-footer{align-items:center}}
+/* Screens: every screenshot sits on the same graphite mat, so dark app captures
+   and light website captures read as one set instead of grey letterboxing. */
+html:root .screenshot-open,html:root .screenshot-open img,html:root .course-image{background:#1a2024}
+html:root .screenshot-open>span{background:#f2f4f5eb;color:#1f2a31;box-shadow:0 2px 8px #0000002e}
+/* About: share the site's left content edge, and keep the workspace link with
+   the interests it belongs to instead of floating at the far right. */
+html:root .about-personal{margin-left:0;margin-right:auto}
+html:root .personal-body{display:flex;flex-direction:column}
+html:root .personal-aside{display:contents}
+html:root .personal-aside>p{order:0;margin:0 0 42px}
+html:root .personal-interests{order:1}
+html:root .personal-aside .text-link{order:2;align-self:flex-start;margin-top:40px}
