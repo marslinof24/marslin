@@ -1,6 +1,6 @@
 # Releases
 
-## v1.3.0 — 2026-11-23
+## v1.4.0 — 2026-11-23
 
 Publishes the Natural Titanium redesign and the 2026-11-23 review follow-ups.
 
@@ -13,7 +13,11 @@ Publishes the Natural Titanium redesign and the 2026-11-23 review follow-ups.
 
 Validated with Welcome and 390px navigation browser regressions (390px: 157 sampled frames per route, no overlap). Desktop navigation passed with reduced frame sampling because the in-app browser tab reported itself hidden. The seven Node entry tests were not run (Node is not installed on this machine). Physical devices and Safari/iOS remain unverified.
 
-Development branches: `fix/review-followups`, `feature/titanium-redesign`. Annotated tag: `v1.3.0`. Previous production commit: `44d868c`. Publication was explicitly authorized by the owner on 2026-11-23.
+Development branches: `fix/review-followups`, `feature/titanium-redesign`. Annotated tag: `v1.4.0`. Previous production commit: `44d868c` (tag `v1.3.0`). Publication was explicitly authorized by the owner on 2026-11-23.
+
+## v1.3.0 — 2026-11-17
+
+Tagged at `44d868c` ("publish demo teaser and compact coursework previews"); this entry was added afterwards. Covers the Perfect Solution coming-soon presentation, genuine practice captures, compact Workspace course previews, and the workspace motion study (later unpublished in v1.4.0). See `docs/demo-teaser.md`, `docs/practice-captures.md` and `docs/workspace-course-preview.md`.
 
 ## v1.2.0 — 2026-11-16
 
