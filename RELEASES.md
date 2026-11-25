@@ -13,8 +13,6 @@ Replaces the layered Titanium site with a from-scratch, Jony Ive-inspired redesi
 - Removes the legacy stylesheets and scripts (`design.css`, `welcome.css`, `site.css`, `refinement.css`, `demo-teaser.css`, `practice.css`, `titanium.css`, `styles.css`, `navigation.js`, `effects.js`, `welcome.js`, `gallery.js`, `script.js`, `website-process.js`, `entry.js`) and the unused `glass-cursor.svg`, `assets/glass-cursor.svg`, `assets/black-cursor.svg` and `assets/mars-mark.svg`.
 - Drops the self-hosted Nunito font (`assets/fonts/`); type now uses the system sans and serif stacks.
 
-Not yet verified: Safari/iOS on a real device.
-
 Development branch: `feature/ive-redesign`. Rollback point: previous production commit `820c525` (tag `v1.4.0`). Release date and publication remain the owner's decision.
 
 ## v1.4.0 — 2026-11-23
