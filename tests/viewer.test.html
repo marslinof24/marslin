@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>viewer.js test</title>
+</head>
+<body>
+  <pre id="results"></pre>
+  <div id="stage"></div>
+  <script src="harness.js"></script>
+  <script>
+    T.run('viewer', async () => {
+      const frame = await T.loadFrame('../workspace.html');
+      const doc = frame.contentDocument;
+      const win = frame.contentWindow;
+
+      const images = [...doc.querySelectorAll('img[data-view]')];
+      T.check(images.length > 0, 'workspace.html has img[data-view]', 'none found');
+      T.check(images.every((img) => img.parentElement && img.parentElement.matches('button.zoom')),
+        'every img[data-view] is wrapped in button.zoom',
+        `${images.filter((img) => !img.parentElement.matches('button.zoom')).length} unwrapped`);
+      T.check(images.every((img) => img.parentElement.type === 'button'), 'zoom buttons are type=button');
+
+      const img = images[0];
+      if (!img || !img.parentElement.matches('button.zoom')) return;
+
+      img.parentElement.click();
+      const dialog = doc.querySelector('dialog.viewer');
+      T.check(!!dialog, 'dialog.viewer exists');
+      if (!dialog) return;
+      T.check(dialog.open, 'clicking the zoom button opens dialog.viewer');
+      const big = dialog.querySelector('img');
+      const expected = img.currentSrc || img.src;
+      T.check(big && big.src === expected, 'viewer image src matches the clicked image', `${big && big.src} vs ${expected}`);
+      // The alt text must reach the viewer: either on the large image itself, or
+      // (to avoid announcing it twice) on a visible figcaption with an empty alt.
+      const captionText = () => ((dialog.querySelector('figcaption') || {}).textContent || '').trim();
+      const altConveyed = (source) => {
+        const shown = dialog.querySelector('img');
+        return shown.alt === source.alt || (shown.alt === '' && captionText() === source.alt.trim());
+      };
+      T.check(big && altConveyed(img), 'viewer conveys the clicked image alt (img alt or caption)',
+        `alt="${big && big.alt}" caption="${captionText()}" vs "${img.alt}"`);
+
+      const close = dialog.querySelector('.viewer-close, button[class*="close"]');
+      T.check(!!close, 'viewer has a close button');
+      if (close) {
+        close.click();
+        T.check(!dialog.open, 'close button closes the viewer');
+      }
+
+      img.parentElement.click();
+      T.check(dialog.open, 'viewer reopens');
+      // A click whose target is the dialog element itself is a backdrop click.
+      dialog.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true }));
+      T.check(!dialog.open, 'backdrop click closes the viewer');
+
+      const last = images[images.length - 1];
+      last.parentElement.click();
+      T.check(dialog.open && altConveyed(last), 'a second image opens with its own alt');
+      dialog.close();
+    });
+  </script>
+</body>
+</html>

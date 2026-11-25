@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Legacy redirect test</title>
+</head>
+<body>
+  <pre id="results"></pre>
+  <div id="stage"></div>
+  <script src="harness.js"></script>
+  <script>
+    // Loads a legacy URL in an iframe and waits for redirects to settle, then
+    // reports the iframe's final path + hash.
+    const finalLocation = (url) => new Promise((resolve, reject) => {
+      const frame = document.createElement('iframe');
+      let settleTimer;
+      const finish = () => {
+        const loc = frame.contentWindow.location;
+        const result = loc.pathname.replace(/^.*\//, '') + loc.hash;
+        frame.remove();
+        resolve(result);
+      };
+      const hardStop = setTimeout(() => { clearTimeout(settleTimer); try { finish(); } catch (e) { reject(e); } }, 8000);
+      frame.addEventListener('load', () => {
+        clearTimeout(settleTimer);
+        const name = frame.contentWindow.location.pathname.replace(/^.*\//, '');
+        // Still on the stub: give the meta refresh / script time to fire.
+        settleTimer = setTimeout(() => { clearTimeout(hardStop); finish(); }, /^(portfolio|articles|links)\.html$/.test(name) ? 2500 : 300);
+      });
+      frame.src = url;
+      document.getElementById('stage').append(frame);
+    });
+
+    const cases = [
+      ['../portfolio.html#background', 'about.html#background'],
+      ['../portfolio.html#perfect-solution', 'workspace.html#perfect-solution'],
+      ['../articles.html', 'workspace.html'],
+      ['../links.html', 'about.html#links'],
+    ];
+
+    T.run('redirects', async () => {
+      for (const [from, to] of cases) {
+        const got = await finalLocation(from);
+        T.check(got === to, `${from.slice(3)} ends on ${to}`, `ended on ${got}`);
+      }
+      const plain = await finalLocation('../portfolio.html');
+      T.check(/^(workspace|about)\.html/.test(plain), 'portfolio.html with no hash lands on a live page', `ended on ${plain}`);
+    });
+  </script>
+</body>
+</html>

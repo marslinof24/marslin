@@ -1,5 +1,22 @@
 # Releases
 
+## v2.0.0 — Unreleased
+
+Replaces the layered Titanium site with a from-scratch, Jony Ive-inspired redesign.
+
+- One calm light visual language: a cursive M mark written left to right in one aluminium stroke, no colour accents, generous space. A single root `style.css` and `viewer.js` replace the previous stylesheets and scripts.
+- Pages: Welcome (`index.html`, with the intro animation), Home, Workspace and About. Contact links (LinkedIn, GitHub, Instagram) sit in every page footer. Copy is carried over from the approved prototype; the "ThisisMarsLin" brand is kept.
+- Retires `portfolio.html`: it now redirects to Workspace, sending old profile anchors to About and project anchors to the matching Workspace section. `articles.html` and `links.html` continue to redirect to Workspace and About contact.
+- Removes the `entry.js` redirect: deep links such as `home.html` or `workspace.html#perfect-solution` now land directly, and repeat visits skip the Welcome intro.
+- Adds a `404.html`, a favicon and Apple touch icon, and Open Graph/Twitter preview metadata with `og.png`.
+- Replaces the previous Node and browser tests with dependency-free PowerShell and headless Chrome tests in `tests/`.
+- Removes the legacy stylesheets and scripts (`design.css`, `welcome.css`, `site.css`, `refinement.css`, `demo-teaser.css`, `practice.css`, `titanium.css`, `styles.css`, `navigation.js`, `effects.js`, `welcome.js`, `gallery.js`, `script.js`, `website-process.js`, `entry.js`) and the unused `glass-cursor.svg`, `assets/glass-cursor.svg`, `assets/black-cursor.svg` and `assets/mars-mark.svg`.
+- Drops the self-hosted Nunito font (`assets/fonts/`); type now uses the system sans and serif stacks.
+
+Not yet verified: Safari/iOS on a real device.
+
+Development branch: `feature/ive-redesign`. Rollback point: previous production commit `820c525` (tag `v1.4.0`). Release date and publication remain the owner's decision.
+
 ## v1.4.0 — 2026-11-23
 
 Publishes the Natural Titanium redesign and the 2026-11-23 review follow-ups.

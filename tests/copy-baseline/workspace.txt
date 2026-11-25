@@ -1,0 +1,112 @@
+title: Workspace — Mars Lin
+Skip to content
+ThisisMarsLin
+Home
+Workspace
+About
+Let's connect
+Work & notes
+Workspace
+Projects in progress, development screenshots, and learning notes.
+Notes & code
+HackMD · Learning notes
+GitHub · Code & repositories
+Personal project · In development
+Perfect Solution (Demo)
+A Windows practice tool for setting up Clash Royale scenarios, trying different responses, and returning to a saved position.
+Perfect Solution
+Demo
+coming soon.
+From your first card to the final play.
+A full walkthrough is on the way.
+The upcoming walkthrough
+Select a deck
+Start with your cards.
+Set the scene
+Arrange the situation.
+Play it through
+Follow one complete practice run.
+Watch the current development clip
+24 sec
+Your browser cannot play this video. The screenshots below show the demo.
+A short development clip of a prepared scenario playing at half speed. The full walkthrough is still being recorded.
+What I wanted to try
+I wanted a way to revisit the same situation instead of starting over each time. The demo lets me arrange both sides, play a scenario, pause it, and continue from a saved position.
+What has been difficult
+Setting up a scenario can become complicated when deck choices, unit placement, and playback controls all compete for attention. I've been refining how those controls are grouped and how the interface explains what can happen next.
+Consistent feedback has also taken work: a selected card, a paused scene, and a rejected placement need to be easy to tell apart. Saving the current scene helps make repeated practice less dependent on rebuilding the setup.
+Where it is now
+The Windows demo supports scenario setup, interactive playback, and saving and loading a scene. Development and verification are ongoing; its behavior has not been verified as equivalent to the real game.
+What comes next
+My focus is to make the setup and practice flow easier to follow, check feedback across different situations, and compare observed behavior with the game before making stronger claims about accuracy.
+A closer look
+One preview image is used below for now. Final screenshots are coming soon.
+Select a deck
+Deck selection screenshot to follow.
+Set the scene
+Scenario setup screenshot to follow.
+Play it through
+Full practice screenshot to follow.
+Graduation project · NCCU
+Video Games as a Window into Players' Perceptions of Ethnicity
+Project lead
+September 2025 – January 2026
+Goal
+My role
+Process
+Outcome
+Goal
+Use video games to explore players' perceptions of ethnicity, and present the findings in an article and a documentary.
+My role
+I coordinated work between our professor and the team, clarified the requirements for the documentary and article, and managed the project schedule.
+Communication with our professor and team
+Article and documentary requirements
+Project scheduling
+Process
+I helped the team agree on deliverables, plan the work, and prepare the final article and documentary.
+Define the deliverables
+Discuss the article and documentary requirements with our professor and the team.
+Manage the schedule
+Keep the team on track and the project on schedule.
+Complete the project
+Complete the article and documentary.
+Outcome
+The project resulted in an article and a documentary.
+The department adopted the project and requested permission to use it for departmental evaluations and student recruitment.
+Read the article
+Watch the documentary
+Web development
+Personal website
+Screenshots showing how this website has developed.
+First layout
+First version
+The first version used a silver palette, a circular M, and the “People first.” introduction.
+Metal exploration
+Metallic finish
+This version explored darker metallic colors and a smaller logo while keeping the original page structure.
+Selected layout
+Revised layout
+This version highlights project coordination and provides direct links to projects and learning notes.
+View repository
+Course exercises
+Web scraping
+Python
+MariaDB
+BS4
+Requests
+SQL
+Git
+Commits
+Branches
+Merge
+Tags
+Find me online
+A few ways to stay in touch.
+LinkedIn
+Let's connect
+GitHub
+Projects & code
+Instagram
+@mmars__n19
+© 2026 Mars Lin
+ThisisMarsLin

@@ -1,0 +1,44 @@
+title: About — Mars Lin
+Skip to content
+ThisisMarsLin
+Home
+Workspace
+About
+Let's connect
+Hi, I'm Mars.
+About me
+My interests have taken me from ethnology and teaching to programming and interface design. I'm still exploring how these experiences connect.
+Let's connect
+“…you have to trust that the dots will somehow connect in your future.”
+— Steve Jobs
+Background & experience
+Mars Lin.
+I graduated from National Chengchi University with a degree in ethnology in 2026. I'm working toward a role as a software engineer.
+Background
+Ethnology
+National Chengchi University · 2026 graduate
+Experience
+Graduation project
+As project lead, I coordinated the team, clarified deliverables, and managed the schedule.
+View project
+English teaching
+2023–2026
+Teaching English helped me explain unfamiliar ideas clearly.
+Technical skills
+I'm learning web development, Python, SQL, MariaDB, and Linux. I'm interested in how people use technology, including digital games.
+Visit my workspace
+Current interests
+AI and retrieval
+I'm learning how embeddings and retrieval-augmented generation (RAG) work, with a focus on improving retrieval workflows.
+Interface design
+I'm interested in how people interact with interfaces, especially how visual feedback and movement shape the experience.
+Find me online
+A few ways to stay in touch.
+LinkedIn
+Let's connect
+GitHub
+Projects & code
+Instagram
+@mmars__n19
+© 2026 Mars Lin
+ThisisMarsLin

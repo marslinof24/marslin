@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Welcome intro test</title>
+</head>
+<body>
+  <pre id="results"></pre>
+  <div id="stage"></div>
+  <script src="harness.js"></script>
+  <script>
+    // The iframe shares this tab's sessionStorage (same origin), so each scenario
+    // sets or clears 'intro-seen' before loading index.html.
+    const fresh = () => T.loadFrame('../index.html', { settle: 50, before: () => sessionStorage.clear() });
+    const skipped = (frame) => frame.contentDocument.body.classList.contains('skip-intro');
+
+    T.run('welcome', async () => {
+      // First visit: intro plays, then skip link ends it.
+      let frame = await fresh();
+      T.check(!skipped(frame), 'first visit: body starts without skip-intro');
+      const doc = frame.contentDocument;
+      const skip = doc.querySelector('.welcome-skip')
+        || [...doc.querySelectorAll('a[href^="#"]')].find((a) => /skip/i.test(a.textContent));
+      T.check(!!skip, 'welcome has a skip link');
+      if (skip) {
+        skip.click();
+        T.check(skipped(frame), 'skip link adds body.skip-intro');
+      }
+
+      // Destination links are plain anchors: real hrefs, nothing cancels the click.
+      const links = [...doc.querySelectorAll('#destinations a, nav.dest a')];
+      T.check(links.length >= 3, 'welcome has destination links', `${links.length} found`);
+      T.check(links.every((a) => /^[\w-]+\.html(#[\w-]+)?$/.test(a.getAttribute('href') || '')),
+        'destination links have relative page hrefs', links.map((a) => a.getAttribute('href')).join(', '));
+      T.check(links.every((a) => !a.hasAttribute('onclick') && !a.hasAttribute('target')),
+        'destination links carry no onclick/target');
+      const prevented = [];
+      const probe = (event) => { prevented.push(event.defaultPrevented); event.preventDefault(); };
+      frame.contentWindow.addEventListener('click', probe); // registered last: runs after page handlers
+      links.forEach((a) => a.dispatchEvent(new frame.contentWindow.MouseEvent('click', { bubbles: true, cancelable: true })));
+      frame.contentWindow.removeEventListener('click', probe);
+      T.check(prevented.length === links.length && prevented.every((p) => !p),
+        'page script does not intercept destination link clicks', JSON.stringify(prevented));
+      ['home.html', 'workspace.html', 'about.html'].forEach((page) => {
+        T.check(links.some((a) => a.getAttribute('href') === page), `destinations include ${page}`);
+      });
+      frame.remove();
+
+      // keydown ends the intro.
+      frame = await fresh();
+      frame.contentDocument.dispatchEvent(new frame.contentWindow.KeyboardEvent('keydown', { key: 'a', bubbles: true }));
+      T.check(skipped(frame), 'keydown adds body.skip-intro');
+      frame.remove();
+
+      // pointerdown ends the intro.
+      frame = await fresh();
+      frame.contentDocument.body.dispatchEvent(new frame.contentWindow.PointerEvent('pointerdown', { bubbles: true }));
+      T.check(skipped(frame), 'pointerdown adds body.skip-intro');
+      frame.remove();
+
+      // Returning visitor in the same session: intro is skipped at load.
+      frame = await T.loadFrame('../index.html', { settle: 0, before: () => { sessionStorage.clear(); sessionStorage.setItem('intro-seen', '1'); } });
+      T.check(skipped(frame), "with sessionStorage 'intro-seen' set, body has skip-intro at load");
+      frame.remove();
+
+      // A first visit records the flag so the next load skips.
+      frame = await fresh();
+      frame.remove();
+      T.check(sessionStorage.getItem('intro-seen') !== null, "first visit sets sessionStorage 'intro-seen'");
+      sessionStorage.clear();
+    });
+  </script>
+</body>
+</html>
